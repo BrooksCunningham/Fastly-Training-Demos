@@ -1,1 +1,6 @@
 node_modules
+hibp-passwords-api/Cargo.lock
+*.wasm
+hibp-passwords-api/target/.rustc_info.json
+
+*/target/*
