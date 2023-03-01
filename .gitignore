@@ -4,3 +4,7 @@ hibp-passwords-api/Cargo.lock
 hibp-passwords-api/target/.rustc_info.json
 
 */target/*
+*/*/Cargo.lock
+*/*/.cargo/config
+*/*/rust-toolchain.toml
+*/*/.gitignore

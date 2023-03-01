@@ -1,0 +1,27 @@
+# This file describes a Fastly Compute@Edge package. To learn more visit:
+# https://developer.fastly.com/reference/fastly-toml/
+
+authors = [""]
+description = "basic compute service that shows utilization of object store"
+language = "rust"
+manifest_version = 2
+name = "compute-proxy-service"
+service_id = ""
+
+[local_server]
+
+  [local_server.backends]
+
+  [local_server.object_store]
+
+    [[local_server.object_store.siem-store]]
+      key = "00000"
+      data = "This is 00000 data"
+
+    [[local_server.object_store.siem-store]]
+      key = "00001"
+      data = "This is 00001 data"
+
+    [[local_server.object_store.siem-store]]
+      key = "00002"
+      data = "This is 00002 data"
