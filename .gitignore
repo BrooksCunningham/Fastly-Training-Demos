@@ -8,3 +8,7 @@ hibp-passwords-api/target/.rustc_info.json
 */*/.cargo/config
 */*/rust-toolchain.toml
 */*/.gitignore
+*.backup
+*.tfstate
+*/.terraform
+*/.terraform.lock*
