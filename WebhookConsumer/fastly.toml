@@ -1,0 +1,9 @@
+# This file describes a Fastly Compute@Edge package. To learn more visit:
+# https://developer.fastly.com/reference/fastly-toml/
+
+authors = [""]
+description = "Send webhooks for processing to compute@edge"
+language = "rust"
+manifest_version = 2
+name = "WebhookConsumer"
+service_id = ""

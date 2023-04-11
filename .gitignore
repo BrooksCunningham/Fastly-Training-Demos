@@ -5,6 +5,7 @@ hibp-passwords-api/target/.rustc_info.json
 
 */target/*
 */*/Cargo.lock
+*/Cargo.lock
 */*/.cargo/config
 */*/rust-toolchain.toml
 */*/.gitignore
@@ -12,3 +13,6 @@ hibp-passwords-api/target/.rustc_info.json
 *.tfstate
 */.terraform
 */.terraform.lock*
+*/.cargo/*
+*/pkg/*
+

@@ -12,6 +12,9 @@ service_id = ""
 
   [local_server.backends]
 
+    [local_server.backends.hibpapiorigin]
+    url = "https://api.pwnedpasswords.com"
+
   [local_server.object_store]
 
     [[local_server.object_store.hibp-store]]
