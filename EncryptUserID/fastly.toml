@@ -1,0 +1,29 @@
+# This file describes a Fastly Compute@Edge package. To learn more visit:
+# https://developer.fastly.com/reference/fastly-toml/
+
+authors = [""]
+description = "Encrypt a user ID in an authentication request and include the encrypted data in a request header"
+language = "rust"
+manifest_version = 2
+name = "EncryptUserID"
+service_id = ""
+
+[local_server]
+
+secret_stores.encryption-key-store = [
+  {key = "enc_key_hex", data = "7ECEA90030826D5326D2C61341B0C1FD02AEE6B58C2FC4D5C9552C50FCB0E44D"},
+  {key = "enc_iv_hex", data = "F2F8B61408F67638B6FBEEB2348F0B5B"}
+]
+
+  [local_server.backends]
+
+    [local_server.backends.httpme]
+      url = "https://http-me.glitch.me/"
+          
+  [local_server.dictionaries]
+    [local_server.dictionaries.encryptionkeys]
+      format = "json"
+      file="./encryptionkeys.json"
+    
+
+

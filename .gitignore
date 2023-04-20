@@ -16,3 +16,4 @@ hibp-passwords-api/target/.rustc_info.json
 */.cargo/*
 */pkg/*
 
+EncryptUserID/rust-toolchain.toml
