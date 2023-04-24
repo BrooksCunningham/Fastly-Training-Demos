@@ -12,8 +12,6 @@ fn main(mut req: Request) -> Result<Response, Error> {
         println!("FASTLY_SERVICE_VERSION: {}", fastly_service_version);
     }
 
-
-
     let uri_vec: Vec<&str> = req.get_path().split("/").collect();
     
     // Check if uri vec is greater than 2 before looking for at the "1" index.
@@ -58,7 +56,6 @@ fn main(mut req: Request) -> Result<Response, Error> {
 
                     beresp
                 },
-
                 // _ => Response::from_body("try again with a request like /range/00000"),
             };
     

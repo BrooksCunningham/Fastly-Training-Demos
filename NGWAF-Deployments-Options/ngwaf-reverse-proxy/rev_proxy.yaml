@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ngwaf-revproxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ngwaf-revproxy
+  template:
+    metadata:
+      labels:
+        app: ngwaf-revproxy
+    spec:
+      containers:
+      - name: sigsci-agent
+        image: signalsciences/sigsci-agent:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SIGSCI_ACCESSKEYID
+          valueFrom:
+            secretKeyRef:
+              name: ngwaf-agent-keys
+              key: accesskeyid
+        - name: SIGSCI_SECRETACCESSKEY
+          valueFrom:
+            secretKeyRef:
+              name: ngwaf-agent-keys
+              key: secretaccesskey
+        - name: SIGSCI_REVPROXY_LISTENER
+          value: "listen_conf:{listener=http://0.0.0.0:80,upstreams=https://http-me.glitch.me:443,access-log='/dev/stdout',pass-host-header=false}"
+        - name: SIGSCI_DEBUG_LOG_BLOCKED_REQUESTS
+          value: "1"
+        - name: SIGSCI_DEBUG_LOG_WEB_INPUTS
+          value: "1"
+        - name: SIGSCI_DEBUG_LOG_CONFIG_UPDATES
+          value: "1"
+        - name: SIGSCI_DEBUG_LOG_CONFIG_UPLOADS
+          value: "1"
+        - name: SIGSCI_DEBUG_LOG_WEB_OUTPUTS
+          value: "1"
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ngwaf-revproxy-lb
+  labels:
+    app: ngwaf-revproxy-lb
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  type: LoadBalancer
+  selector:
+    app: ngwaf-revproxy
+
+  
