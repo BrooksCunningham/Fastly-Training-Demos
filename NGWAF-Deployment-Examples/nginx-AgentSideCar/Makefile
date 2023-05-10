@@ -6,6 +6,8 @@ build:
 	-@ kubectl create secret generic ngwaf-agent-keys --from-literal=accesskeyid=${NGWAFACCESSKEYID} --from-literal=secretaccesskey=${NGWAFACCESSKEYSECRET}
 	kubectl apply -f nginx_sidecar.yaml
 	echo "Run the command minikube tunnel command. Then run make demo in a seperate terminal to see how to test locally."
+	-@ sleep 2
+	-@ make demo
 
 #minikube tunnel
 
