@@ -1,1 +1,7 @@
-This demo is not working. It is a work in progress.
+
+Pre-reqs
+
+Install minikube
+Install kubectl
+Install container environment like colima
+Install docker-cli
