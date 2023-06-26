@@ -1,0 +1,93 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  # annotations:
+  #   nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ngwaf-reverse-proxy-nodeport-service
+                port:
+                  number: 8080
+          - path: /anything
+            pathType: Prefix
+            backend:
+              service:
+                name: ngwaf-reverse-proxy-nodeport-service
+                port:
+                  number: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ngwaf-reverse-proxy
+spec:
+  selector:
+    matchLabels:
+      app: ngwaf-reverse-proxy
+  template:
+    metadata:
+      labels:
+        app: ngwaf-reverse-proxy
+    spec:
+      containers:
+      - name: sigsci-agent
+        image: signalsciences/sigsci-agent:latest
+        imagePullPolicy: 
+        env:
+        - name: SIGSCI_ACCESSKEYID
+          valueFrom:
+            secretKeyRef:
+              name: ngwaf-agent-keys
+              key: accesskeyid
+        - name: SIGSCI_SECRETACCESSKEY
+          valueFrom:
+            secretKeyRef:
+              name: ngwaf-agent-keys
+              key: secretaccesskey
+        - name: SIGSCI_REVPROXY_LISTENER
+          value: "listen_conf:{listener=http://0.0.0.0:8080,upstreams=https://http-me.glitch.me:443,access-log='/dev/stdout',pass-host-header=false}"
+        - name: SIGSCI_DEBUG_LOG_BLOCKED_REQUESTS
+          value: "1"
+        - name: SIGSCI_DEBUG_LOG_WEB_INPUTS
+          value: "1"
+        - name: SIGSCI_DEBUG_LOG_CONFIG_UPDATES
+          value: "1"
+        - name: SIGSCI_DEBUG_LOG_CONFIG_UPLOADS
+          value: "1"
+        - name: SIGSCI_DEBUG_LOG_WEB_OUTPUTS
+          value: "1"
+        volumeMounts:
+        - name: sigsci-tmp
+          mountPath: /sigsci/tmp
+      volumes:
+      - name: sigsci-tmp
+        emptyDir: {}
+---
+kind: Service 
+apiVersion: v1 
+metadata:
+  name: ngwaf-reverse-proxy-nodeport-service
+spec:
+  # Expose the service on a static port on each node
+  # so that we can access the service from outside the cluster 
+  type: NodePort
+  # When the node receives a request on the static port (30163)
+  # "select pods with the label 'app' set to 'echo-hostname'"
+  # and forward the request to one of them
+  selector:
+    app: ngwaf-reverse-proxy
+  ports:
+    # Three types of ports for a service
+    # nodePort - a static port assigned on each the node
+    # port - port exposed internally in the cluster
+    # targetPort - the container port to send requests to
+    - nodePort: 30163
+      port: 8080 
+      targetPort: 8080
