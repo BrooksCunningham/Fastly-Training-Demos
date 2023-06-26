@@ -12,8 +12,11 @@ hibp-passwords-api/target/.rustc_info.json
 *.backup
 *.tfstate
 */.terraform
+*/*/.terraform
 */.terraform.lock*
+*/*/.terraform.lock*
 */.cargo/*
 */pkg/*
 
-EncryptUserID/rust-toolchain.toml
+
+*/rust-toolchain.toml
