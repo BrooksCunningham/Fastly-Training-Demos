@@ -1,0 +1,27 @@
+# This file describes a Fastly Compute@Edge package. To learn more visit:
+# https://developer.fastly.com/reference/fastly-toml/
+
+authors = [""]
+description = ""
+language = "javascript"
+manifest_version = 2
+name = "dlp-with-openapi-spec"
+service_id = ""
+
+[local_server]
+
+  [local_server.backends]
+
+    [local_server.backends.origin]
+      url = "https://http-me.glitch.me/"
+
+[scripts]
+  build = "npm run build"
+
+[setup]
+
+  [setup.backends]
+
+    [setup.backends.origin]
+      address = "httpbin.org"
+      description = "Application origin"
