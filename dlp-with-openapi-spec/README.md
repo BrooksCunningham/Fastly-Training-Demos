@@ -26,20 +26,19 @@ When running this app locally try running commands like the following.
 
 ```
 # Request validation success
-curl -X POST http://127.0.0.1:7676/anything -d '{"username":"foo", "password":"secretbar"}' -i
-# Request validation fail
-curl -X POST http://127.0.0.1:7676/anything -d '{"foo":"abc"}' -p=h
+curl -X POST http://127.0.0.1:7676/anything/login -d '{"username":"foo", "password":"secretbar"}' -i
+# Request validation fail because "username" and "password" are required fields in the request body
+curl -X POST http://127.0.0.1:7676/anything/login -d '{"foo":"abc"}' -i
 
 # Request validation success
 curl -X GET http://127.0.0.1:7676/html -i
 
 # Response validation is successful
-curl -XPOST http://127.0.0.1:7676/anything/barfoo -d '{"username":"foo", "password":"secretbar"
-}' -i
-# Response validation failing
-curl -XPOST http://127.0.0.1:7676/anything/foobar -d '{"username":"foo", "password":"secretbar"
-}' -i
+curl -XPOST http://127.0.0.1:7676/anything/barfoo -d '{"username":"foo", "password":"secretbar"}' -i
+# Response validation fails because "foobar" is not allowed in the response body field "url".
+curl -XPOST http://127.0.0.1:7676/anything/foobar -d '{"username":"foo", "password":"secretbar"}' -i
 ```
+The response to the URL `/anything/foobar` will fail because the property "url" in the response schema does not allow the "foobar" in the response.
 
 ### Request handling
 

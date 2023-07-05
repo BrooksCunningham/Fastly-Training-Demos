@@ -13,7 +13,7 @@ service_id = ""
   [local_server.backends]
 
     [local_server.backends.origin]
-      url = "https://http-me.glitch.me/"
+      url = "https://httpbin.org/"
 
 [scripts]
   build = "npm run build"
@@ -23,5 +23,5 @@ service_id = ""
   [setup.backends]
 
     [setup.backends.origin]
-      address = "httpbin.org"
+      address = "http-me.glitch.me"
       description = "Application origin"
