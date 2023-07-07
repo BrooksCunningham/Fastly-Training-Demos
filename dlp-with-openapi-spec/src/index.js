@@ -47,7 +47,7 @@ async function handleRequest(event) {
   // clone the response to use for validation
   let responseValidationResult = {};
   [backendResp, responseValidationResult] = await validateResponse(backendResp, openAPIValidator, reqValidationResult.operationId);
-  console.log(`responseValidationResult: `, responseValidationResult);
+  console.log(`Response Validation Result: `, responseValidationResult);
 
   // if there is an error, then return the error
   if (responseValidationResult.isValid === false 
