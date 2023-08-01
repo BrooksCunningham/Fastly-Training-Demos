@@ -1,0 +1,46 @@
+# Configure the Fastly Provider
+provider "fastly" {
+  api_key = var.FASTLY_API_KEY
+}
+
+#### Fastly VCL Service - Start
+resource "fastly_service_vcl" "frontend-vcl-service" {
+  name = "Frontend VCL Service - NGWAF edge deploy ${var.USER_DOMAIN_NAME}"
+
+  domain {
+    name    = var.USER_DOMAIN_NAME
+    comment = "Frontend VCL Service - NGWAF edge deploy"
+  }
+  backend {
+    address = var.USER_VCL_SERVICE_BACKEND_HOSTNAME
+    name = "vcl_service_origin"
+    port    = 443
+    use_ssl = true
+    ssl_cert_hostname = var.USER_VCL_SERVICE_BACKEND_HOSTNAME
+    ssl_sni_hostname = var.USER_VCL_SERVICE_BACKEND_HOSTNAME
+    override_host = var.USER_VCL_SERVICE_BACKEND_HOSTNAME
+  }
+
+  force_destroy = true
+}
+
+
+#### Fastly VCL Service - End
+
+output "live_laugh_love_ngwaf_edge_deploy" {
+  value = <<tfmultiline
+  
+  #### Click the URL to go to the Fastly VCL service ####
+  https://cfg.fastly.com/${fastly_service_vcl.frontend-vcl-service.id}
+  
+  #### Send a test request with curl. ####
+  curl -i "https://${var.USER_DOMAIN_NAME}/anything/whydopirates?likeurls=theargs" -d foo=bar
+
+  #### Send an test as traversal with curl. ####
+  curl -i "https://${var.USER_DOMAIN_NAME}/anything/myattackreq?i=../../../../etc/passwd" -d foo=bar
+  
+  tfmultiline
+
+  description = "Output hints on what to do next."
+
+}
