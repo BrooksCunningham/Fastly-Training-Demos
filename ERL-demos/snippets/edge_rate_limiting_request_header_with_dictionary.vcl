@@ -24,14 +24,11 @@ sub rl_green_watson_process {
   
   # Use the request header user-id for the rate limit key
   set var.rl_green_watson_entry = req.http.user-id;
-
-  # TODOs
-  # add table to configure logging or blocking
-  # add table to only action on specific user agent.
   
+  # Only action on specific user agent.
   if (req.restarts == 0 && fastly.ff.visits_this_service == 0
       && table.contains(rl_green_watson_methods, req.method)
-      && std.tolower(req.http.user-agent) ~ "python-requests"
+      && std.tolower(req.http.user-agent-alt) ~ "python-requests"
       && std.strlen(var.rl_green_watson_entry) > 0
       ) {
       #check rate for the request header user-id
@@ -50,7 +47,7 @@ sub rl_green_watson_process {
           if (table.lookup(erl_config, "blocking", "false") == "true"
           ){
             error 829 "Rate limiter: Too many requests for green_watson";
-          }      
+          }
       }
   }
 }
@@ -66,10 +63,11 @@ sub vcl_pass {
 }
 
 # Only set response headers when debugging to avoid giving attackers additional information
-/* sub vcl_deliver {
+sub vcl_deliver {
   set resp.http.rate = ratecounter.rl_green_watson_rc.rate.60s;
   set resp.http.rate-counter = ratecounter.rl_green_watson_rc.bucket.60s;
-} */
+  set resp.http.Fastly-SEC-RateLimit = req.http.Fastly-SEC-RateLimit;
+}
 
 sub vcl_error {
     # Snippet rate-limiter-v1-green_watson-error
