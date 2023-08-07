@@ -32,13 +32,41 @@ resource "fastly_service_vcl" "edge-rate-limiting-terraform-service" {
     override_host = var.USER_DEFAULT_BACKEND_HOSTNAME
   }
 
+  # TODO create a snippet to switch to this origin. 
+  # This is helpful for seeing responses from /anything/
+  backend {
+    address = "http-me.glitch.me"
+    name = "fastly_http-me_origin"
+    port    = 443
+    use_ssl = true
+    ssl_cert_hostname = "http-me.glitch.me"
+    ssl_sni_hostname = "http-me.glitch.me"
+    override_host = "http-me.glitch.me"
+  }
+
+  ##### Set the http-me.glitch.me origin when the http-me request header is present
+  snippet {
+    name = "set_http-me_origin"
+    content = file("${path.module}/snippets/set_http-me_origin.vcl")
+    type = "recv"
+    priority = 100
+  }
+
   ##### Rate limit by request header "user-id" - Orange frodo
-    snippet {
+  snippet {
     name = "Edge Rate Limit by user-id request header with dictionaries"
     content = file("${path.module}/snippets/edge_rate_limiting_request_header_with_dictionary.vcl")
     type = "init"
     priority = 115
   }
+
+  ##### Rate limit by request header "user-id" and using ERL as state machine - Orange Gandolf
+  # snippet {
+  #   name = "Edge Rate Limit State Machine"
+  #   content = file("${path.module}/snippets/edge_rate_limiting_state_machine.vcl")
+  #   type = "init"
+  #   priority = 116
+  # }
 
 
   ##### origin_waf_response
@@ -57,9 +85,9 @@ resource "fastly_service_vcl" "edge-rate-limiting-terraform-service" {
     priority = 100
   }
 
-  dictionary {
-    name       = "rl_user_agents"
-  }
+  # dictionary {
+  #   name       = "rl_user_agents"
+  # }
 
   dictionary {
     name       = "erl_config"
@@ -68,33 +96,30 @@ resource "fastly_service_vcl" "edge-rate-limiting-terraform-service" {
     force_destroy = true
 }
 
-resource "fastly_service_dictionary_items" "rl_user_agents" {
-  for_each = {
-  for d in fastly_service_vcl.edge-rate-limiting-terraform-service.dictionary : d.name => d if d.name == "login_paths"
-  }
-  service_id = fastly_service_vcl.edge-rate-limiting-terraform-service.id
-  dictionary_id = each.value.dictionary_id
+# resource "fastly_service_dictionary_items" "rl_user_agents" {
+#   for_each = {
+#     for d in fastly_service_vcl.edge-rate-limiting-terraform-service.dictionary : d.name => d if d.name == "rl_user_agents"
+#   }
+#   service_id = fastly_service_vcl.edge-rate-limiting-terraform-service.id
+#   dictionary_id = each.value.dictionary_id
 
-  items = {
-    "python-requests": "true",
-  }
-
-  manage_items = true
-}
+#   items = {
+#     "python-requests": "true",
+#   }
+#   manage_items = true
+# }
 
 
 
 resource "fastly_service_dictionary_items" "erl_config" {
   for_each = {
-  for d in fastly_service_vcl.edge-rate-limiting-terraform-service.dictionary : d.name => d if d.name == "login_paths"
+    for d in fastly_service_vcl.edge-rate-limiting-terraform-service.dictionary : d.name => d if d.name == "erl_config"
   }
   service_id = fastly_service_vcl.edge-rate-limiting-terraform-service.id
   dictionary_id = each.value.dictionary_id
-
   items = {
     "blocking": "true",
   }
-
   manage_items = true
 }
 
