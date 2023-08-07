@@ -23,3 +23,5 @@ hibp-passwords-api/target/.rustc_info.json
 */rust-toolchain.toml
 ERL-demos/terraform.tfvars
 NGWAF-Deployment-Examples/ngwaf-edge-deply-with-existing-service/terraform.tfvars
+NGWAF-Deployment-Examples/.DS_Store
+.DS_Store

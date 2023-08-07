@@ -27,7 +27,7 @@ resource "fastly_service_vcl" "frontend-vcl-service" {
 
 #### Fastly VCL Service - End
 
-output "live_laugh_love_ngwaf_edge_deploy" {
+output "live_waf_love_ngwaf_edge_deploy" {
   value = <<tfmultiline
   
   #### Click the URL to go to the Fastly VCL service ####

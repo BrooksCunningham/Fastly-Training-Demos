@@ -21,6 +21,12 @@ resource "fastly_service_vcl" "frontend-vcl-service" {
     override_host = var.USER_VCL_SERVICE_BACKEND_HOSTNAME
   }
 
+  # Dictionary for NGWAF Edge deployment
+  dictionary {
+    name          = var.Edge_Security_dictionary
+    force_destroy = true
+  }
+
   #### NGWAF Dynamic Snippets - MANAGED BY FASTLY - Start
   dynamicsnippet {
     name     = "ngwaf_config_init"
@@ -50,6 +56,7 @@ resource "fastly_service_dictionary_items" "edge_security_dictionary_items" {
   for_each = {
     for d in fastly_service_vcl.frontend-vcl-service.dictionary : d.name => d if d.name == var.Edge_Security_dictionary
   }
+  
   service_id = fastly_service_vcl.frontend-vcl-service.id
   dictionary_id = each.value.dictionary_id
   items = {
@@ -155,7 +162,7 @@ resource "sigsci_edge_deployment_service_backend" "ngwaf_edge_service_backend_sy
 
 #### Edge deploy and sync - End
 
-output "live_laugh_love_ngwaf_edge_deploy" {
+output "live_waf_love_ngwaf_edge_deploy" {
   value = <<tfmultiline
   
   #### Click the URL to go to the Fastly VCL service ####
