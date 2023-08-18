@@ -25,3 +25,5 @@ ERL-demos/terraform.tfvars
 NGWAF-Deployment-Examples/ngwaf-edge-deply-with-existing-service/terraform.tfvars
 NGWAF-Deployment-Examples/.DS_Store
 .DS_Store
+*.lock
+NGWAF-Deployment-Examples/compute-with-ngwaf-edge-not-proxy/terraform.tfvars
