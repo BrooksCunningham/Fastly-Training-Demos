@@ -142,12 +142,6 @@ resource "fastly_service_dynamic_snippet_content" "ngwaf_config_deliver" {
 #### Fastly VCL Service - End
 
 #### Edge deploy and sync - Start
-provider "sigsci" {
-  corp = var.NGWAF_CORP
-  email = var.NGWAF_EMAIL
-  auth_token = var.NGWAF_TOKEN
-  fastly_api_key = var.FASTLY_API_KEY
-}
 
 resource "sigsci_edge_deployment" "ngwaf_edge_site_service" {
   # https://registry.terraform.io/providers/signalsciences/sigsci/latest/docs/resources/edge_deployment
