@@ -10,18 +10,13 @@ resource "fastly_service_compute" "compute-service-with-ngwaf" {
 
   domain {
     name    = var.USER_COMPUTE_SERVICE_DOMAIN_NAME
-    comment = "Service chaining with NGWAF and compute@edge"
+    comment = "Compute@edge service"
   }
 
   package {
     filename         = data.local_file.package_name.filename
     source_code_hash = data.fastly_package_hash.example.hash
   }
-
-  # if I was just working with a standard pre-built package (i.e. a package I manually compiled) I'd use...
-  #
-  # filename         = "package-built-locally-via-cli.tar.gz"
-  # source_code_hash = filesha512("package-built-locally-via-cli.tar.gz")
 
   backend {
     address = var.USER_COMPUTE_SERVICE_BACKEND_HOSTNAME
