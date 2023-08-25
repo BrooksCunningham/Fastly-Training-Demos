@@ -6,7 +6,7 @@ description = ""
 language = "rust"
 manifest_version = 3
 name = "compute-service-with-ngwaf"
-service_id = ""
+service_id = "dhx8oBr05CA9MZUqrbwfr4"
 
 [local_server]
 
@@ -16,4 +16,4 @@ service_id = ""
     url = "https://http-me.glitch.me"
 
     [local_server.backends.ngwaf_origin]
-    url = ""
+    url = "https://compute-with-ngwaf-edge-vcl.global.ssl.fastly.net"

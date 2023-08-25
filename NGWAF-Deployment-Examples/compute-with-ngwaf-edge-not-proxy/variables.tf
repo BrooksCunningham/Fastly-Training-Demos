@@ -35,10 +35,10 @@ variable "USER_COMPUTE_SERVICE_BACKEND_HOSTNAME" {
   description = "hostname used for backend."
 }
 
-variable "USER_COMPUTE_SERVICE_NGWAF_BACKEND_HOSTNAME" {
-  type = string
-  description = "hostname used for NGWAF backend."
-}
+# variable "USER_COMPUTE_SERVICE_NGWAF_BACKEND_HOSTNAME" {
+#   type = string
+#   description = "hostname used for NGWAF backend."
+# }
 
 #### Compute Service variables - End
 

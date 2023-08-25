@@ -39,13 +39,16 @@ resource "sigsci_corp_cloudwaf_instance" "test_corp_cloudwaf" {
 
 # terraform import sigsci_corp_cloudwaf_instance.test_corp_cloudwaf id
 
-# terraform import sigsci_corp_cloudwaf_instance.test_corp_cloudwaf f1b41fc7-35d7-4636-bf54-06291d49cc0d
+# terraform import sigsci_corp_cloudwaf_instance.test_corp_cloudwaf f1b41fc8-35d7-4636-bf54-06291d49cc0d
 
 
 #### CloudWAF deploy - End
 
 output "live_waf_love_ngwaf_edge_deploy" {
   value = <<tfmultiline
+
+  ${sigsci_corp_cloudwaf_instance.test_corp_cloudwaf.id}
+  ${sigsci_corp_cloudwaf_instance.test_corp_cloudwaf.name}
   tfmultiline
 
   #### Click the URL to go to the Fastly VCL service ####

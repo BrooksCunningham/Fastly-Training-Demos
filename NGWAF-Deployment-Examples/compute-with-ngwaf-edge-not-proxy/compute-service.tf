@@ -1,5 +1,10 @@
 #### Fastly Compute@Edge Service - Start
 
+data "fastly_package_hash" "example" {
+  filename = null_resource.build_package.triggers.package_name
+  depends_on = [ null_resource.build_package ]  
+}
+
 resource "fastly_service_compute" "compute-service-with-ngwaf" {
   name = "Compute Service with ngwaf - ${var.USER_COMPUTE_SERVICE_DOMAIN_NAME}"
 
@@ -10,7 +15,7 @@ resource "fastly_service_compute" "compute-service-with-ngwaf" {
 
   package {
     filename         = data.local_file.package_name.filename
-    source_code_hash = sha512(data.local_file.package_name.content)
+    source_code_hash = data.fastly_package_hash.example.hash
   }
 
   # if I was just working with a standard pre-built package (i.e. a package I manually compiled) I'd use...

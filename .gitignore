@@ -27,3 +27,5 @@ NGWAF-Deployment-Examples/.DS_Store
 .DS_Store
 *.lock
 NGWAF-Deployment-Examples/compute-with-ngwaf-edge-not-proxy/terraform.tfvars
+NGWAF-Deployment-Examples/ngwaf-CloudWAF/terraform.tfvars
+*.info
