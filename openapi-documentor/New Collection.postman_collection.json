@@ -1,0 +1,81 @@
+{
+	"info": {
+		"_postman_id": "c135d352-8f39-485c-a9f2-cd3afcb3cb7e",
+		"name": "New Collection",
+		"description": "my description",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30102010"
+	},
+	"item": [
+		{
+			"name": "https://http-me.edgecompute.app/status/300 Copy",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "host",
+						"value": "http-me.edgecompute.app"
+					},
+					{
+						"key": "Accept",
+						"value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+					},
+					{
+						"key": "sec-ch-ua",
+						"value": "\"Google Chrome\";v=\"117\", \"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"117\""
+					},
+					{
+						"key": "User-Agent",
+						"value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+					},
+					{
+						"key": "Sec-Fetch-Dest",
+						"value": "document"
+					},
+					{
+						"key": "Sec-Fetch-Mode",
+						"value": "navigate"
+					},
+					{
+						"key": "Sec-Fetch-Site",
+						"value": "none"
+					},
+					{
+						"key": "Sec-Fetch-User",
+						"value": "?1"
+					},
+					{
+						"key": "sec-ch-ua-mobile",
+						"value": "?0"
+					},
+					{
+						"key": "sec-ch-ua-platform",
+						"value": "\"macOS\""
+					},
+					{
+						"key": "Upgrade-Insecure-Requests",
+						"value": "1"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"foo\": \"bar\"\n}"
+				},
+				"url": {
+					"raw": "https://http-me.edgecompute.app/anything/foo",
+					"protocol": "https",
+					"host": [
+						"http-me",
+						"edgecompute",
+						"app"
+					],
+					"path": [
+						"anything",
+						"foo"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
