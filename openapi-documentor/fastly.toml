@@ -7,3 +7,4 @@ language = "rust"
 manifest_version = 3
 name = "openapi-documentor"
 service_id = ""
+

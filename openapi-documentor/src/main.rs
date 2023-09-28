@@ -2,9 +2,11 @@ use fastly::http::StatusCode;
 use fastly::{Error, Request, Response};
 use fastly::handle::client_request_id;
 use serde_json::json;
+use serde_json::Value;
 
 #[fastly::main]
 fn main(mut req: Request) -> Result<Response, Error> {
+    
     // Get request method
     let req_method = req.get_method_str().to_owned();
 
@@ -15,7 +17,6 @@ fn main(mut req: Request) -> Result<Response, Error> {
         let reqHeaderValStr = v.to_str()?;
         reqHeadersData[reqHeaderNameStr] = serde_json::json!(reqHeaderValStr);
     }
-    // println!("Headers: {}", &reqHeadersData);
 
     // Get url
     let reqUrl = req.get_url().to_owned();
@@ -27,11 +28,10 @@ fn main(mut req: Request) -> Result<Response, Error> {
     let host_vec = host_str.split(".").collect::<Vec<&str>>();
 
     let path_segments: Vec<&str> = reqUrl.path_segments().ok_or_else(|| ["cannot be base"]).unwrap().collect();
-    println!("{:?}", &path_segments);
+    // println!("{:?}", &path_segments);
 
     let requestId = client_request_id().ok_or("noId").unwrap();
-    println!("{}", &requestId);
-
+    // println!("{}", &requestId);
 
     let formatted_data = serde_json::json!({
         "info": {
