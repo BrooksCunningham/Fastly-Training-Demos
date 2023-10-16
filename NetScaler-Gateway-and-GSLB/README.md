@@ -26,7 +26,7 @@ flowchart TD
     NS_ICA_1[NetScaler ICA 1]
     NS_ICA_2[NetScaler ICA 2]
 
-    Client_ICA -->|ica.foo.bar:8443| NS_ICA_GSLB
+    Client_ICA -->|ica.foo.bar:443| NS_ICA_GSLB
     NS_ICA_GSLB -->|ica-site-1.foo.bar| NS_ICA_1
     NS_ICA_GSLB -->|ica-site-2.foo.bar| NS_ICA_2
 
