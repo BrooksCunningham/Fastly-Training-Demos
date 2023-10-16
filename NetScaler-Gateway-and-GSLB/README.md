@@ -6,8 +6,8 @@ Users may authenticate successfully using HTTP through the NetScaler gateway tha
 flowchart TD
     Client[HTTP Client]
     NS_AUTH_GSLB{NetScaler Auth GSLB}
-    NS_AUTH_1[NS Auth 1]
-    NS_AUTH_2[NS Auth 2]
+    NS_AUTH_1[NetScaler Auth 1]
+    NS_AUTH_2[NetScaler Auth 2]
     NGWAF[Fastly Next-Gen WAF]
     NS_WAF_GSLB{NetScaler WAF GSLB}
     
@@ -30,4 +30,8 @@ flowchart TD
     NS_ICA_GSLB -->|ica-site-1.foo.bar| NS_ICA_1
     NS_ICA_GSLB -->|ica-site-2.foo.bar| NS_ICA_2
 
+    classDef fastlyClass fill:#A00
+    class NGWAF fastlyClass;
+
+%%Check out styling here, https://mermaid.js.org/syntax/flowchart.html
 ```
