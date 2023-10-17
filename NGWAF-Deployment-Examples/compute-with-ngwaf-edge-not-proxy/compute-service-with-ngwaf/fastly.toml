@@ -15,5 +15,8 @@ service_id = "dhx8oBr05CA9MZUqrbwfr4"
     [local_server.backends.httpme_origin]
     url = "https://http-me.glitch.me"
 
+    [local_server.backends.status_origin]
+    url = "https://status.demotool.site"
+
     [local_server.backends.ngwaf_origin]
     url = "https://compute-with-ngwaf-edge-vcl.global.ssl.fastly.net"

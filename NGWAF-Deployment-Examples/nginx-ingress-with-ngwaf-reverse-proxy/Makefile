@@ -5,10 +5,8 @@ KUBEYAML?=nginx_ingress_with_reverse_proxy.yaml
 
 # Environment variables $NGWAFACCESSKEYID and $NGWAFACCESSKEYSECRET must already be set before running `make build`
 build:
-# - docker build . -t mylocaltrainingimages/nginx-module
 	-@ kubectl create secret generic ngwaf-agent-keys --from-literal=accesskeyid=${NGWAFACCESSKEYID} --from-literal=secretaccesskey=${NGWAFACCESSKEYSECRET}
 	kubectl apply -f $(KUBEYAML)
-#echo "Run the command minikube tunnel command. Then run make demo in a seperate terminal to see how to test locally."
 	-@ sleep 7
 	-@ make demo
 
@@ -16,28 +14,23 @@ build:
 demo:
 	kubectl get services
 	echo "curl" `kubectl get services $(KUBEDEPLOYMENT)-lb | grep $(KUBEDEPLOYMENT) | awk '{print $$4}'`/anything/123
-	echo "curl --resolve 'hello-world.info:80:$$( minikube ip )' -i http://hello-world.info"
-	curl $$(minikube service ngwaf-reverse-proxy-nodeport-service --url)/anything/hello-ngwaf
+	curl --resolve hello-world.info:80:$$( minikube ip ) -i http://hello-world.info
+# curl $$(minikube service ngwaf-reverse-proxy-nodeport-service --url)/anything/hello-ngwaf
 
 	
 clean:
 	- kubectl delete -f $(KUBEYAML)
-	sleep 3
-#- docker image rm mylocaltrainingimages/nginx-module
-# kubectl get deployments
-# - kubectl get deployment $(KUBEDEPLOYMENT) | awk '{print $$1}' | xargs kubectl delete deployment
-# - kubectl get services $(KUBEDEPLOYMENT)-lb | awk '{print $$1}' | xargs kubectl delete services
-# - kubectl delete secret ngwaf-agent-keys
+	-@ sleep 3
 
 describe:
+	kubectl describe ingress
+	kubectl describe services
 	kubectl describe pods	
-	kubectl get ingress
 
 get:	
-	- kubectl get 
-	- kubectl get services
-# - kubectl get services $(KUBEDEPLOYMENT)-lb
-
+	kubectl get ingress
+	kubectl get services
+	kubectl get pods
 
 rebuild:
 	make clean; make build

@@ -6,17 +6,31 @@ https://github.com/joolfe/postman-to-openapi/tree/master
 # Here's the steps to generate a spec file
 Send traffic and log the output.
 
+Run the following command in one terminal.
+
+fastly compute serve | grep --line-buffered exporter
+
+Generate some traffic
+```
+curl -H host:http-me.edgecompute.app http://127.0.0.1:7676/status/200
+curl -H host:http-me.edgecompute.app http://127.0.0.1:7676/status/302
+curl -H host:http-me.edgecompute.app http://127.0.0.1:7676/status/404
+curl -H host:http-me.edgecompute.app http://127.0.0.1:7676/status/504
+```
+
 Incorporate the boilerplate like below into your logged requests
 
 ```
-    "info": {
-        "_postman_id": "abc",
-        "name": "My Collection name",
-        "description": "my first description",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-        "_exporter_id": "123"
-    },
-    "item": []
+{
+  "info": {
+      "_postman_id": "abc",
+      "name": "My Collection name",
+      "description": "my first description",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "_exporter_id": "123"
+  },
+  "item": []
+}
 ```
 
 You will need to insert each logline into the `items` field in the above boilerplate.

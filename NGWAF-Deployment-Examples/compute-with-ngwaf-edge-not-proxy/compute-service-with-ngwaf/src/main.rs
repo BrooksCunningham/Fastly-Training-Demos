@@ -5,6 +5,9 @@ use std::time::Instant;
 // BACKEND_HTTPME
 const BACKEND_HTTPME: &str = "httpme_origin";
 
+// BACKEND_STATUS
+const BACKEND_STATUS: &str = "status_origin";
+
 // BACKEND_NGWAF
 const BACKEND_NGWAF: &str = "ngwaf_origin";
 
@@ -26,8 +29,16 @@ fn main(mut req: Request) -> Result<Response, Error> {
     
     println!("Elapsed time waf_request_check, {:.4?}", before.elapsed());
 
-    req.set_header("host", "http-me.glitch.me");
-    Ok(req.send(BACKEND_HTTPME)?)
+    match req.get_path() {
+        "/status" => {
+            req.set_header("host", "status.demotool.site");
+            Ok(req.send(BACKEND_STATUS)?)
+        }
+        _ => {
+          req.set_header("host", "http-me.glitch.me");
+          Ok(req.send(BACKEND_HTTPME)?)
+        }
+      }
 }
 
 fn waf_request_check(mut req: Request) -> Result<Response, Error> {

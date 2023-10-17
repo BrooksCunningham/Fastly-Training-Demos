@@ -1,5 +1,5 @@
-KUBEDEPLOYMENT?=nginx-module-with-ngwaf-sidecar
-KUBEYAML?=nginx_sidecar.yaml
+KUBEDEPLOYMENT?=nginx-with-ngwaf-reverse-proxy
+KUBEYAML?=nginx_with_reverse_proxy.yaml
 # KUBEYAML?=nginx-deploy.yaml
 
 # Environment variables $NGWAFACCESSKEYID and $NGWAFACCESSKEYSECRET must already be set before running `make build`

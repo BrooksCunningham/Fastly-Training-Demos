@@ -29,6 +29,16 @@ resource "fastly_service_compute" "compute-service-with-ngwaf" {
   }
 
   backend {
+    address = "status.demotool.site"
+    name = "status_origin"
+    port    = 443
+    use_ssl = true
+    ssl_cert_hostname = "status.demotool.site"
+    ssl_sni_hostname = "status.demotool.site"
+    override_host = "status.demotool.site"
+  }
+
+  backend {
     address = var.USER_VCL_SERVICE_DOMAIN_NAME
     name = "ngwaf_origin"
     port    = 443
@@ -72,6 +82,10 @@ output "compute_live_waf_love_ngwaf_edge_deploy" {
 
   #### Send an test as traversal with curl. ####
   curl -i "https://${var.USER_COMPUTE_SERVICE_DOMAIN_NAME}/anything/myattackreq?i=../../../../etc/passwd" -d foo=bar
+
+  # Generate some load
+  echo "GET https://${var.USER_COMPUTE_SERVICE_DOMAIN_NAME}/status?x-obj-status=200" | vegeta attack -header "always-block:true" -duration=120s  | vegeta report -type=text
+
 
   tfmultiline
 

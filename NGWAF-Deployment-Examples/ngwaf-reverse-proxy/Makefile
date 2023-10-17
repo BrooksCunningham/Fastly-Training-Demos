@@ -2,9 +2,12 @@ KUBEDEPLOYMENT?=ngwaf-revproxy
 
 # Environment variables $NGWAFACCESSKEYID and $NGWAFACCESSKEYSECRET must already be set before running `make build`
 build:
-	- kubectl create secret generic ngwaf-agent-keys --from-literal=accesskeyid=${NGWAFACCESSKEYID} --from-literal=secretaccesskey=${NGWAFACCESSKEYSECRET}
+	echo "Make sure your container environment such as colima and minikube are running."
+	-@ kubectl create secret generic ngwaf-agent-keys --from-literal=accesskeyid=${NGWAFACCESSKEYID} --from-literal=secretaccesskey=${NGWAFACCESSKEYSECRET}
 	kubectl apply -f rev_proxy.yaml
 	echo "Run the command minikube tunnel command. Then run make demo in a seperate terminal to see how to test locally."
+	sleep 5
+	make demo
 
 #minikube tunnel
 

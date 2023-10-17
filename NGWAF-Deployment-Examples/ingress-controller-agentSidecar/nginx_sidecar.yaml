@@ -8,73 +8,52 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx-module-with-ngwaf-sidecar-lb
+  name: nginx-ingress-controller-with-agent-lb
 spec:
   ports:
   - port: 80
     targetPort: 80
   type: LoadBalancer
   selector:
-    app: nginx-module-with-ngwaf-sidecar
+    app: nginx-ingress-controller-with-agent
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nginx-configmap
+  name: nginx-config
 data:
-  nginx.conf: |
-    user www-data;
-    worker_processes auto;
-    pid /run/nginx.pid;
-    load_module /usr/lib/nginx/modules/ngx_http_sigsci_nxo_module-1.18.0.so;
+  nginx.conf: '
 
-    # include /etc/nginx/modules-enabled/*.conf;
+  # load_module /etc/nginx/modules/ngx_http_sigsci_module.so;
 
-    events {
-      worker_connections 768;
-      # multi_accept on;
-    }
-
-    http {
-      
-      ##
-      # Logging Settings
-      ##
-
-      access_log /var/log/nginx/access.log;
-      error_log /var/log/nginx/error.log;
-
-      # Fastly NGWAF Logging
-      # All options listed here, https://docs.fastly.com/signalsciences/install-guides/module-config/#nginx-c-binary-module
-      sigsci_enabled on;
-      # sigsci_debug on;
-      sigsci_agent_host unix:/sigsci/tmp/sigsci.sock;
-
-      server {
-          listen 80;
-          location / {
+  events {
+  }
+  http {
+    server {
+        listen 80;
+        location / {
             proxy_set_header Host "http-me.glitch.me";
             proxy_pass http://httpme.glitch.me;
-          }
-          location /hello {
-            return 200 "Hello world from NGWAF and nginx!\n";
-          }
-      }
+        }
+        location /hello {
+            return 200 "Hello world from nginx!\n";
+        }
     }
-
+  }
+  '
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-module-with-ngwaf-sidecar
+  name: nginx-ingress-controller-with-agent
 spec:
   selector:
     matchLabels:
-      app: nginx-module-with-ngwaf-sidecar
+      app: nginx-ingress-controller-with-agent
   template:
     metadata:
       labels:
-        app: nginx-module-with-ngwaf-sidecar
+        app: nginx-ingress-controller-with-agent
     spec:
       containers:
       - name: sigsci-agent
@@ -119,18 +98,8 @@ spec:
         # Shared mount with sigsci-agent container where the socket is shared via emptyDir volume
         - name: sigsci-tmp
           mountPath: /sigsci/tmp
-        - name: nginx-volume
-          mountPath: /etc/nginx/nginx.conf
-          subPath: nginx.conf
-          readOnly: true
-
       # restartPolicy: Never
       volumes:
         - name: sigsci-tmp
           emptyDir: {}
-        - name: nginx-volume
-          configMap:
-            name: nginx-configmap
-            items:
-              - key: nginx.conf
-                path: nginx.conf
+

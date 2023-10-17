@@ -39,6 +39,12 @@ spec:
           value: "1"
         - name: SIGSCI_DEBUG_LOG_WEB_OUTPUTS
           value: "1"
+        - name: SIGSCI_ACCESS_LOG
+          value: "/tmp/sigsci.log"
+        - name: SIGSCI_LOG_OUT
+          value: "/tmp/sigsciout.log"
+        - name: SIGSCI_WAF_DATA_LOG
+          value: "/tmp/waf_sigsci.log"
         ports:
         - containerPort: 80
 ---

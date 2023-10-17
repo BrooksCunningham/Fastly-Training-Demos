@@ -1,25 +1,24 @@
 KUBEDEPLOYMENT?=nginx-module-with-ngwaf-sidecar
-KUBEYAML?=nginx_sidecar.yaml
-# KUBEYAML?=nginx-deploy.yaml
 
 # Environment variables $NGWAFACCESSKEYID and $NGWAFACCESSKEYSECRET must already be set before running `make build`
 build:
-	- docker build . -t mylocaltrainingimages/nginx-module
+	- docker build . -t bcunningham/nginx-module
 	-@ kubectl create secret generic ngwaf-agent-keys --from-literal=accesskeyid=${NGWAFACCESSKEYID} --from-literal=secretaccesskey=${NGWAFACCESSKEYSECRET}
-	kubectl apply -f $(KUBEYAML)
+	kubectl apply -f nginx_sidecar.yaml
 	echo "Run the command minikube tunnel command. Then run make demo in a seperate terminal to see how to test locally."
-	-@ sleep 5
+	-@ sleep 2
 	-@ make demo
 
+#minikube tunnel
 
 demo:
 	kubectl get services
 	echo "curl" `kubectl get services $(KUBEDEPLOYMENT)-lb | grep $(KUBEDEPLOYMENT) | awk '{print $$4}'`/anything/123
 	
 clean:
-	- kubectl delete -f $(KUBEYAML)
+	- kubectl delete -f nginx_sidecar.yaml
 	sleep 3
-	- docker image rm mylocaltrainingimages/nginx-module
+	- docker image rm bcunningham/nginx-module
 # kubectl get deployments
 # - kubectl get deployment $(KUBEDEPLOYMENT) | awk '{print $$1}' | xargs kubectl delete deployment
 # - kubectl get services $(KUBEDEPLOYMENT)-lb | awk '{print $$1}' | xargs kubectl delete services
@@ -28,7 +27,7 @@ clean:
 describe:
 	kubectl describe pods	
 
-get:	
+get:
 	- kubectl get 
 	- kubectl get services
 # - kubectl get services $(KUBEDEPLOYMENT)-lb
@@ -37,9 +36,8 @@ get:
 rebuild:
 	make clean; make build
 
-exec:
-# kubectl get pods | grep $(KUBEDEPLOYMENT) | awk '{print $$1}' | xargs -I {} echo kubectl exec --stdin --tty {} -- /bin/sh
-# kubectl get pods | awk '{print $$1}' | xargs -I {} echo kubectl exec --stdin --tty {} -- /bin/sh
+make exec:
+	kubectl get pods | grep $(KUBEDEPLOYMENT) | awk '{print $$1}' | xargs -I {} echo kubectl exec --stdin --tty {} -- /bin/sh
 	kubectl get pods | grep $(KUBEDEPLOYMENT) | awk '{print $$1}' | xargs -I {} echo kubectl exec --stdin -c nginx --tty {} -- /bin/sh
 
 # kubectl exec --stdin --tty ngwaf-revproxy-9b976bd75-mzwdh -- /bin/sh
@@ -50,6 +48,3 @@ exec:
 # kubectl describe secret ngwaf-agent-keys
 # kubectl get secret ngwaf-agent-keys -o jsonpath='{.data}' | jq .accesskeyid -r | base64 -D
 # kubectl delete secret ngwaf-agent-keys
-
-logs:
-	kubectl logs `kubectl get pods | tail -n +2 | awk '{print $$1}'` -c nginx
