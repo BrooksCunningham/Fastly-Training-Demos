@@ -1,180 +1,4 @@
-// / <reference types="@fastly/js-compute" />
-
-import { env } from "fastly:env";
-// import { includeBytes } from "fastly:experimental";
-import { OpenAPIValidator } from "openapi-backend";
-
-const textDecoder = new TextDecoder();
-
-// A valid and fully-dereferenced OpenAPI 3.x definition.
-// const openAPIDefinition = JSON.parse(textDecoder.decode(includeBytes('src/definition.json')));
-
-
-// If true, invalid requests will be rejected with a 400 response.
-// Otherwise, they will be forwarded to the origin after OpenAPI validation errors are logged.
-const REJECT_INVALID_REQUESTS = false;
-const REJECT_INVALID_RESPONSE = true;
-// The origin server that requests are proxied onto.
-const BACKEND = "origin";
-
-addEventListener("fetch", (event) => event.respondWith(handleRequest(event)));
-
-// Validates all requests against an OpenAPI definition.
-async function handleRequest(event) {
-  // Log service version
-  console.log("FASTLY_SERVICE_VERSION:", env('FASTLY_SERVICE_VERSION') || 'local');
-  
-  // Initialize an OpenAPI validator using the OpenAPI definition.
-  // https://github.com/anttiviljami/openapi-backend/blob/master/DOCS.md#new-openapivalidatoropts
-  const openAPIValidator = new OpenAPIValidator({
-    definition: openAPIDefinition,
-    lazyCompileValidators: true,
-  });
-
-  const req = event.request;
-
-  // clone the request to use for validation.
-  const validationReq = validationReqFunc(req);
-
-  // Validate the request.
-  const reqValidationResult = await validateRequest(validationReq, openAPIValidator);
-  
-  console.log(`request validation: `, reqValidationResult);
-
-  // Forward request to the origin
-  let backendResp = await fetch(req, { backend: BACKEND });
-
-  // clone the response to use for validation
-  let responseValidationResult = {};
-  [backendResp, responseValidationResult] = await validateResponse(backendResp, openAPIValidator, reqValidationResult.operationId);
-  console.log(`Response Validation Result: `, responseValidationResult);
-
-  // if there is an error, then return the error
-  if (responseValidationResult.isValid === false 
-    && REJECT_INVALID_RESPONSE === true
-    && responseValidationResult.error !== "None"){
-    return new Response(responseValidationResult.error, {
-      status: 400
-      })
-  }
-
-  // Return the original backend response back to the client.
-  return backendResp
-}
-
-async function validateRequest(req, openAPIValidator){
-  
-  try {
-    const url = new URL(req.url);
-    // Build a normalized Request object to pass to the OpenAPI validator.
-    // https://github.com/anttiviljami/openapi-backend/blob/master/DOCS.md#request-object
-    let normalizedForValidation = {};
-    if (["GET", "HEAD"].includes(req.method)) {
-      normalizedForValidation = {
-        method: req.method,
-        // path of the request
-        path: url.pathname,
-        // HTTP request headers
-        headers: Object.fromEntries(req.headers.entries()),
-        // parsed query parameters
-        query: Object.fromEntries(url.searchParams.entries()),
-        // the request body is not available for a GET request
-        // body: reqBodyText,
-      };
-    }
-    
-    if (req.method == "POST") {
-      const reqBodyText = await req.text();
-      normalizedForValidation = {
-        method: req.method,
-        // path of the request
-        path: url.pathname,
-        // HTTP request headers
-        headers: Object.fromEntries(req.headers.entries()),
-        // parsed query parameters
-        query: Object.fromEntries(url.searchParams.entries()),
-        // the request body is not available for a GET request
-        body: reqBodyText,
-      };
-    }
-
-    // Match the request to an operation from the OpenAPI definition.
-    const operation = openAPIValidator.router.matchOperation(
-      normalizedForValidation
-    );
-
-    // Validate the request against the matched operation (if found).
-    const reqValidationResult = openAPIValidator.validateRequest(
-      normalizedForValidation,
-      operation
-    );
-    // Handle request validation errors.
-    if (!reqValidationResult.valid) {
-      console.error(
-        "OpenAPI request validation errors",
-        reqValidationResult.errors
-      );
-      throw new Error("Invalid request");
-    }
-  
-    return {isValid: true, "operationId" : operation.operationId}
-  
-  } catch (error) {
-    // Handle errors, including when an operation is not matched.
-    console.error("OpenAPI request validation failed", error);
-    if (REJECT_INVALID_REQUESTS) {
-      // Send a synthetic 400 response.
-      // return new Response("Bad Request because of request validation", { status: 400 });
-      return error
-    }
-    return {"isValid": false, "operationId" : "nil"}
-  }
-}
-
-async function validateResponse(response, openAPIValidator, operationId){
-  // Take care! .text() will consume the entire body into memory!
-  let respBodyText = await response.text();
-  let newResp = new Response(respBodyText);
-
-  // Only evaluate requests that are formated as JSON from the origin for this example
-  if (response.headers.get("content-type").includes("json")) {
-    try {    
-      // Only do the response body check if the response body is valid JSON.
-      // console.log(`operation.operationId:`, operationId);
-      const validateResponse = openAPIValidator.validateResponse(JSON.parse(respBodyText), operationId);
-    
-      if (validateResponse.errors) {
-        // there were errors, then throw an error
-        console.log(validateResponse.errors);
-        throw new Error("Invalid RESPONSE");
-      }
-      console.log(`Inspected response: TRUE`);
-      
-      return [newResp, {"isValid": true, "error" : "None"}]
-    } catch (error) {
-      // Handle errors, including when an operation is not matched.
-      console.error("OpenAPI RESPONSE validation failed", error);
-      // return the original response and status on the response validation
-      return [newResp, {"isValid": false, "error" : error}]
-    }
-  }
-  // return when there is no response inspected
-  return [newResp, {"isValid": false, "error" : "None"}]
-}
-
-const validationReqFunc = (req) => {
-  // Cannot use the clone function if the request is a GET or HEAD
-  if (["GET", "HEAD"].includes(req.method)){
-    return new Request(req, {
-      method: req.method,
-      headers: req.headers,
-    })
-  }
-  return req.clone();
-}
-
-// A valid and fully-dereferenced OpenAPI 3.x definition.
-const openAPIDefinition = {
+{
   "openapi": "3.0.1",
   "info": {
     "title": "httpbin.org",
@@ -290,6 +114,56 @@ const openAPIDefinition = {
           "Anything"
         ],
         "summary": "Returns anything passed in request data.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "username",
+                  "password"
+                ],
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 10
+                  },
+                  "username": {
+                    "type": "string",
+                    "example": "theUser"
+                  },
+                  "firstName": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "example": "James"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "john@email.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "12345"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "12345"
+                  },
+                  "userStatus": {
+                    "type": "integer",
+                    "description": "User Status",
+                    "format": "int32",
+                    "example": 1
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Anything passed in request",
@@ -403,56 +277,6 @@ const openAPIDefinition = {
                       "example": "https://localhost/anything/200",
                       "pattern": "^((?!foobar).)*$"
                     }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "required": [
-                  "username",
-                  "password"
-                ],
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
-                  },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
                   }
                 }
               }
