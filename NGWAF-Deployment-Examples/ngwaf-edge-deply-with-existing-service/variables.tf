@@ -13,7 +13,7 @@ variable "USER_DOMAIN_NAME" {
 variable "USER_VCL_SERVICE_BACKEND_HOSTNAME" {
   type          = string
   description   = "hostname used for backend."
-  default       = "http-me.glitch.me"
+  default       = "http-me.edgecompute.app"
 }
 
 # Controls the percentage of traffic sent to NGWAF
