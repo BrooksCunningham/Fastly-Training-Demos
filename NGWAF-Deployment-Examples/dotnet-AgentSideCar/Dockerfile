@@ -12,8 +12,9 @@ RUN apk upgrade
 RUN apk add curl
 RUN apk add vim
 
-# RUN curl https://dl.signalsciences.net/sigsci-module-dotnetcore/1.3.1/SignalSciences.Module.DotNetCore.1.3.1.nupkg --output /app/SignalSciences.Module.DotNetCore.1.3.1.nupkg
-
-# RUN dotnet add package SignalSciences.HttpMiddleware -s /app/SignalSciences.Module.DotNetCore.1.3.1.nupkg
 WORKDIR /app
+
+# https://docs.fastly.com/en/ngwaf/dotnet-core
+RUN curl https://dl.signalsciences.net/sigsci-module-dotnetcore/1.3.1/SignalSciences.Module.DotNetCore.1.3.1.nupkg --output /app/SignalSciences.Module.DotNetCore.1.3.1.nupkg
+
 ENTRYPOINT [ "./aspnetapp" ]
