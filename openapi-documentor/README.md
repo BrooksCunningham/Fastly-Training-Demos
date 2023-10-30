@@ -4,7 +4,7 @@
 
 Start up an APIClarity environment. See `./apiclarity/values.yaml` for those instructions
 
-Create an `./apiclarity_configstore.json` file with the APIClarity key for your install.
+Create or update the `./apiclarity_configstore.json` file with the APIClarity key for your install.
 
 ```
 {
