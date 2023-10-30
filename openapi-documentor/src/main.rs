@@ -13,8 +13,9 @@ fn main(mut req: Request) -> Result<Response, Error> {
     let mut req_cloned: Request = req.clone_with_body();
 
     
-
-    // Ok(Response::from_status(StatusCode::OK))
+    // Setting the host header necessary for the backend.
+    req.set_header("host", "http-me.edgecompute.app");
+    
     let mut resp: Response = req.send("origin")?;
     // let mut resp: Response = Response::new();
     // resp.set_status(StatusCode::OK);

@@ -31,3 +31,4 @@ NGWAF-Deployment-Examples/compute-with-ngwaf-edge-not-proxy/terraform.tfvars
 NGWAF-Deployment-Examples/ngwaf-CloudWAF/terraform.tfvars
 *.info
 
+openapi-documentor/apiclarity/values.yaml

@@ -61,8 +61,9 @@ fn send_to_har(mut req: Request, mut resp: Response) -> Result<&'static str, Err
         resp_headers_data[resp_header_name_str] = json!(resp_header_val_str);
     }
     let resp_body: String = encode(resp.take_body_bytes());
-
-    let formatted_data: Value = serde_json::json!({
+    
+    /*
+    let mut formatted_data: Value = serde_json::json!({
       "requestID": &request_id,
       "scheme": "http",
       "destinationAddress": "127.0.0.1:80",
@@ -94,9 +95,66 @@ fn send_to_har(mut req: Request, mut resp: Response) -> Result<&'static str, Err
         }
       }
     });
+    */
 
-    // println!();
-    println!("{}", &formatted_data);
+    let mut har_formatted_data: Value = serde_json::json!({
+      "log": {
+        "version": "1.2",
+        "creator": {
+          "name": "WebInspector",
+          "version": "537.36"
+        },
+        "pages": [],
+        "entries": [
+          {
+            "request": {
+              "method": &req_method,
+              "url": &req_url.as_str(),
+              "httpVersion": "http/2.0",
+              "headers": [
+                &req_headers_data
+              ],
+              "queryString": [],
+              "cookies": [],
+              "headersSize": -1,
+              "bodySize": 0
+            },
+            "response": {
+              "status": resp.get_status().as_u16().to_string(),
+              "statusText": "Found",
+              "httpVersion": "http/2.0",
+              "headers": [
+                &resp_headers_data
+              ],
+              "cookies": [],
+              "content": {
+                "size": 0,
+                "mimeType": "x-unknown",
+                "text": ""
+              },
+              "redirectURL": "",
+              "headersSize": -1,
+              "bodySize": -1,
+            },
+            "serverIPAddress": "127.0.0.1",
+            "startedDateTime": "2023-10-30T00:00:00.000Z",
+            "time": 0,
+            "timings": {
+              "blocked": 0,
+              "dns": 0,
+              "ssl": 0,
+              "connect": 0,
+              "send": 0,
+              "wait": 0,
+              "receive": 0
+            }
+          }
+        ]
+      }
+    });
+
+    println!("{}", &har_formatted_data);
+    // println!("{}", &formatted_data);
     // println!();
 
 
