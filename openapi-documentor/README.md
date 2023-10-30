@@ -1,4 +1,4 @@
-# Send network data to stdout which may be used to build an openapi spec file
+# Generate an OpenAPI spec using Fastly and APIClarity
 
 # Here's the steps to generate a spec file
 
