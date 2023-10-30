@@ -1,0 +1,16 @@
+# This file describes a Fastly Compute package. To learn more visit:
+# https://developer.fastly.com/reference/fastly-toml/
+
+authors = ["brookscunningham@gmail.com"]
+description = ""
+language = "rust"
+manifest_version = 3
+name = "har-generator"
+service_id = ""
+
+[local_server]
+
+  [local_server.backends]
+
+    [local_server.backends.origin]
+      url = "https://http-me.edgecompute.app/"
