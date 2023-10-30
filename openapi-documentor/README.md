@@ -1,8 +1,5 @@
 # Send network data to stdout which may be used to build an openapi spec file
 
-Inspired by the following repo.
-https://github.com/joolfe/postman-to-openapi/tree/master
-
 # Here's the steps to generate a spec file
 
 Start up an APIClarity environment. See `./apiclarity/values.yaml` for those instructions
