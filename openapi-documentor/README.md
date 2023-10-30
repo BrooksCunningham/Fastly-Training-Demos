@@ -4,13 +4,23 @@ Inspired by the following repo.
 https://github.com/joolfe/postman-to-openapi/tree/master
 
 # Here's the steps to generate a spec file
-Send traffic and log the output.
 
-Run the following command in one terminal.
+Start up an APIClarity environment. See `./apiclarity/values.yaml` for those instructions
 
-fastly compute serve | grep --line-buffered exporter
+Create an `./apiclarity_configstore.json` file with the APIClarity key for your install.
 
-Generate some traffic
+```
+{
+    "trace_source_token": "YOUR_KEY_HERE"
+}
+```
+
+Start up a local fastly compute instance
+```
+fastly compute serve
+```
+
+Generate some traffic to the local Fastly service
 ```
 curl -H host:http-me.edgecompute.app http://127.0.0.1:7676/status/200
 curl -H host:http-me.edgecompute.app http://127.0.0.1:7676/status/302
@@ -18,223 +28,11 @@ curl -H host:http-me.edgecompute.app http://127.0.0.1:7676/status/404
 curl -H host:http-me.edgecompute.app http://127.0.0.1:7676/status/504
 ```
 
-Incorporate the boilerplate like below into your logged requests
+This Fastly service will then format the request and response data before sending the traffic to the local APIClarity environment listening on port 9000.
 
+httpie is nice too :-)
 ```
-{
-  "info": {
-      "_postman_id": "abc",
-      "name": "My Collection name",
-      "description": "my first description",
-      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-      "_exporter_id": "123"
-  },
-  "item": []
-}
+http http://127.0.0.1:7676/anything/555 host:http-me.edgecompute.app foo=bar
 ```
 
-You will need to insert each logline into the `items` field in the above boilerplate.
-
-# Examples
-## Example logged requests with boilerplate
-```
-{
-    "info": {
-        "_postman_id": "abc",
-        "name": "My Collection name",
-        "description": "my first description",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-        "_exporter_id": "123"
-    },
-    "item": [
-        {
-            "info": {
-                "_exporter_id": "123",
-                "_postman_id": "abc",
-                "description": "my first description",
-                "name": "New Collection name",
-                "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-            },
-            "item": [
-                {
-                    "name": "00000000000000000000000000000004",
-                    "request": {
-                        "body": {
-                            "mode": "raw",
-                            "raw": ""
-                        },
-                        "headers": [],
-                        "method": "GET",
-                        "url": {
-                            "host": [
-                                "127",
-                                "0",
-                                "0",
-                                "1"
-                            ],
-                            "path": [
-                                "anything",
-                                "1",
-                                "get"
-                            ],
-                            "protocol": "https",
-                            "raw": "http://127.0.0.1:7676/anything/1/get"
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "info": {
-                "_exporter_id": "123",
-                "_postman_id": "abc",
-                "description": "my first description",
-                "name": "New Collection name",
-                "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-            },
-            "item": [
-                {
-                    "name": "00000000000000000000000000000005",
-                    "request": {
-                        "body": {
-                            "mode": "raw",
-                            "raw": ""
-                        },
-                        "headers": [],
-                        "method": "GET",
-                        "url": {
-                            "host": [
-                                "127",
-                                "0",
-                                "0",
-                                "1"
-                            ],
-                            "path": [
-                                "anything",
-                                "2",
-                                "get"
-                            ],
-                            "protocol": "https",
-                            "raw": "http://127.0.0.1:7676/anything/2/get"
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "info": {
-                "_exporter_id": "123",
-                "_postman_id": "abc",
-                "description": "my first description",
-                "name": "New Collection name",
-                "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-            },
-            "item": [
-                {
-                    "name": "00000000000000000000000000000003",
-                    "request": {
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\"foo\": \"bar\"}"
-                        },
-                        "headers": [],
-                        "method": "POST",
-                        "url": {
-                            "host": [
-                                "127",
-                                "0",
-                                "0",
-                                "1"
-                            ],
-                            "path": [
-                                "anything",
-                                "3",
-                                "post"
-                            ],
-                            "protocol": "https",
-                            "raw": "http://127.0.0.1:7676/anything/3/post"
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        }
-    ]
-}
-```
-## Example OpenAPI spec
-Below is the OpenAPI spec that is generated from https://kevinswiber.github.io/postman2openapi/
-
-```
-openapi: 3.0.3
-info:
-  title: My Collection name
-  description: my first description
-  version: 1.0.0
-  contact: {}
-servers:
-  - url: https://127.0.0.1
-paths:
-  /anything/1/get:
-    get:
-      tags:
-        - <folder>
-      summary: '00000000000000000000000000000004'
-      description: '00000000000000000000000000000004'
-      operationId: '00000000000000000000000000000004'
-      requestBody:
-        content:
-          text/plain:
-            examples:
-              '00000000000000000000000000000004':
-                value: ''
-      responses:
-        '200':
-          description: ''
-  /anything/2/get:
-    get:
-      tags:
-        - <folder>1
-      summary: '00000000000000000000000000000005'
-      description: '00000000000000000000000000000005'
-      operationId: '00000000000000000000000000000005'
-      requestBody:
-        content:
-          text/plain:
-            examples:
-              '00000000000000000000000000000005':
-                value: ''
-      responses:
-        '200':
-          description: ''
-  /anything/3/post:
-    post:
-      tags:
-        - <folder>12
-      summary: '00000000000000000000000000000003'
-      description: '00000000000000000000000000000003'
-      operationId: '00000000000000000000000000000003'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                foo:
-                  type: string
-                  example: bar
-            examples:
-              '00000000000000000000000000000003':
-                value:
-                  foo: bar
-      responses:
-        '200':
-          description: ''
-tags:
-  - name: <folder>
-  - name: <folder>1
-  - name: <folder>12
-
-```
+Check out the APIClarity UI for the API Spec details.
