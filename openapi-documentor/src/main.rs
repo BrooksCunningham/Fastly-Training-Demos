@@ -31,12 +31,17 @@ fn send_to_apiclarity(mut req: Request, mut resp: Response) -> Result<&'static s
     let req_method: String = req.get_method_str().to_owned();
 
     // Get request headers
-    let mut req_headers_data: Value = serde_json::json!({});
+    let mut req_headers_vec: Vec<Value> = Vec::new();
     for (n, v) in req.get_headers() {
         let req_header_name_str: &str = n.as_str();
         let req_header_val_str: &str = v.to_str()?;
-        req_headers_data[req_header_name_str] = json!(req_header_val_str);
+        let req_header_json: Value = json!({
+          "name" : &req_header_name_str,
+          "value" : &req_header_val_str
+        });
+        req_headers_vec.push(req_header_json);
     }
+
 
     // Get url
     let req_url: fastly::http::Url = req.get_url().to_owned();
@@ -56,12 +61,19 @@ fn send_to_apiclarity(mut req: Request, mut resp: Response) -> Result<&'static s
 
     // Get the response data
     // Get request headers
-    let mut resp_headers_data: Value = serde_json::json!({});
-    for (n, v) in req.get_headers() {
+    let mut resp_headers_vec: Vec<Value> = Vec::new();
+
+    for (n, v) in resp.get_headers() {
         let resp_header_name_str: &str = n.as_str();
         let resp_header_val_str: &str = v.to_str()?;
-        resp_headers_data[resp_header_name_str] = json!(resp_header_val_str);
+        let resp_header_json: Value = json!({
+          "name" : &resp_header_name_str,
+          "value" : &resp_header_val_str
+        });
+
+        resp_headers_vec.push(resp_header_json);
     }
+    
     let resp_body: String = encode(resp.take_body_bytes());
 
     let formatted_data: Value = serde_json::json!({
@@ -76,9 +88,7 @@ fn send_to_apiclarity(mut req: Request, mut resp: Response) -> Result<&'static s
         "host": &host_str,
         "common": {
           "version": "1",
-          "headers": [
-              &req_headers_data
-          ],
+          "headers": &req_headers_vec,
           "body": &req_body,
           "TruncatedBody": false
         }
@@ -87,10 +97,7 @@ fn send_to_apiclarity(mut req: Request, mut resp: Response) -> Result<&'static s
         "statusCode": resp.get_status().as_u16().to_string(),
         "common": {
           "version": "1",
-          "headers": &resp_headers_data,
-          "headers": [
-            &resp_headers_data
-          ],
+          "headers": &resp_headers_vec,
           "body": &resp_body,
           "TruncatedBody": false
         }
