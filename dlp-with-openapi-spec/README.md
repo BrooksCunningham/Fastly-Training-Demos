@@ -1,7 +1,5 @@
 # OpenAPI Validation for Requests and Responses for JavaScript
 
-[![Deploy to Fastly](https://deploy.edgecompute.app/button)](https://deploy.edgecompute.app/deploy)
-
 An application template for validating requests and responses against an OpenAPI 3.x definition, in JavaScript, for Fastly's Compute@Edge environment.
 
 ## OpenAPI, briefly
