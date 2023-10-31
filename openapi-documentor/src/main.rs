@@ -36,7 +36,7 @@ fn send_to_apiclarity(mut req: Request, mut resp: Response) -> Result<&'static s
         let req_header_name_str: &str = n.as_str();
         let req_header_val_str: &str = v.to_str()?;
         let req_header_json: Value = json!({
-          "name" : &req_header_name_str,
+          "key" : &req_header_name_str,
           "value" : &req_header_val_str
         });
         req_headers_vec.push(req_header_json);
@@ -67,7 +67,7 @@ fn send_to_apiclarity(mut req: Request, mut resp: Response) -> Result<&'static s
         let resp_header_name_str: &str = n.as_str();
         let resp_header_val_str: &str = v.to_str()?;
         let resp_header_json: Value = json!({
-          "name" : &resp_header_name_str,
+          "key" : &resp_header_name_str,
           "value" : &resp_header_val_str
         });
 
