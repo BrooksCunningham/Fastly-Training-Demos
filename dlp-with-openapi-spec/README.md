@@ -18,6 +18,8 @@ Within an OpenAPI spec, you may define the schema and format for a response. Thi
 
 ## Usage
 
+Before running this example, make sure your OpenAPI spec is dereferenced. I made another tool (json-dereference)[https://github.com/BrooksCunningham/json-dereference/tree/main] that can provide a dereferenced the OpenAPI spec.
+
 Run `fastly compute serve` to try out this Compute@Edge app on your local machine, or `fastly compute publish` to publish a new Compute@Edge service.
 
 When running this app locally try running commands like the following.
