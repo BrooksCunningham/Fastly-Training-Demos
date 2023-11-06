@@ -21,15 +21,15 @@ router.get("/", async (req, res) => {
 
 router.post("/get_sampled_logs", async (req, res) => {
   const { 
-    SIGSCI_EMAIL,
-    SIGSCI_TOKEN,
+    ngwaf_email,
+    ngwaf_token,
     corpName,
     siteName,
     trace_source_token,
   } = await req.json();
 
-  let ngwaf_sampled_logs = await get_sampled_logs(SIGSCI_EMAIL,SIGSCI_TOKEN, corpName, siteName);
-  let ngwaf_sampled_json = await ngwaf_sampled_logs.json()
+  let ngwaf_sampled_logs = await get_sampled_logs(ngwaf_email, ngwaf_token, corpName, siteName);
+  let ngwaf_sampled_json = await ngwaf_sampled_logs.json();
   let api_clarity_result = await send_to_apiclarity(ngwaf_sampled_json, trace_source_token);
 
   console.log(api_clarity_result);
@@ -39,7 +39,7 @@ router.post("/get_sampled_logs", async (req, res) => {
 
 router.listen();
 
-async function get_sampled_logs(SIGSCI_EMAIL, SIGSCI_TOKEN, corpName, siteName) {
+async function get_sampled_logs(ngwaf_email, ngwaf_token, corpName, siteName) {
 
   let from = Math.floor(Date.now()/1000) - 86400 - Math.floor(Date.now()/1000) % 60;
   let until = Math.floor(Date.now()/1000) - 300 - Math.floor(Date.now()/1000) % 60;
@@ -47,9 +47,9 @@ async function get_sampled_logs(SIGSCI_EMAIL, SIGSCI_TOKEN, corpName, siteName) 
   // build the request for request sampling
   const url = `https://dashboard.signalsciences.net/api/v0/corps/${corpName}/sites/${siteName}/feed/requests?from=${from}&until=${until}`;
   const headers = {
-    'x-api-user': SIGSCI_EMAIL,
-    'x-api-token': SIGSCI_TOKEN,
-  };
+    'x-api-user': ngwaf_email,
+    'x-api-token': ngwaf_token,
+  };  
   const options = {
     method: 'GET',
     headers: headers,

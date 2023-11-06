@@ -12,6 +12,11 @@ https://github.com/openclarity/apiclarity
 * [npm](https://www.npmjs.com/)
 * kubectl
 * docker cli
+* Must set the following environment variables
+    * NGWAF_EMAIL 
+    * NGWAF_TOKEN 
+    * NGWAF_CORP 
+    * NGWAF_SITE
 
 
 # Quickstart
@@ -34,5 +39,5 @@ TRACE_SOURCE_TOKEN=$(curl --http1.1 --insecure -s -H 'Content-Type: application/
 You may use `curl` or `http` to send the request to the locally running Fastly compute instance formatted like the following.
 
 ```
-http http://127.0.0.1:7676/get_sampled_logs SIGSCI_EMAIL=$SIGSCI_EMAIL SIGSCI_TOKEN=$SIGSCI_TOKEN corpName=$TF_VAR_NGWAF_CORP siteName=$TF_VAR_NGWAF_SITE TRACE-SOURCE-TOKEN=$TRACE_SOURCE_TOKEN -p=b
+http http://127.0.0.1:7676/get_sampled_logs NGWAF_EMAIL=$NGWAF_EMAIL NGWAF_TOKEN=$NGWAF_TOKEN corpName=$NGWAF_CORP siteName=$NGWAF_SITE TRACE-SOURCE-TOKEN=$TRACE_SOURCE_TOKEN -p=b
 ```
