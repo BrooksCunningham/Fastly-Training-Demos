@@ -5,6 +5,15 @@ https://docs.fastly.com/en/ngwaf/extract-your-data
 
 https://github.com/openclarity/apiclarity
 
+## Pre-reqs
+
+* [Fastly CLI](https://developer.fastly.com/learning/tools/cli/#installing)
+* Fastly Next-Gen WAF API Token
+* [npm](https://www.npmjs.com/)
+* kubectl
+* docker cli
+
+
 # Quickstart
 
 ## Build APIClarity and start a locally running Fastly Compute environment
