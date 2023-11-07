@@ -13,5 +13,5 @@ variable "USER_DOMAIN_NAME" {
 variable "USER_DEFAULT_BACKEND_HOSTNAME" {
   type = string
   description = "Backend for your service."
-  default = "status.demotool.site"
+  default = "http-me.edgecompute.app"
 }

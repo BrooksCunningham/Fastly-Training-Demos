@@ -35,34 +35,27 @@ resource "fastly_service_vcl" "edge-rate-limiting-terraform-service" {
   # TODO create a snippet to switch to this origin. 
   # This is helpful for seeing responses from /anything/
   backend {
-    address = "http-me.edgecompute.app"
+    address = "http-me.glitch.me"
     name = "fastly_http-me_origin"
     port    = 443
     use_ssl = true
-    ssl_cert_hostname = "http-me.edgecompute.app"
-    ssl_sni_hostname = "http-me.edgecompute.app"
-    override_host = "http-me.edgecompute.app"
+    ssl_cert_hostname = "http-me.glitch.me"
+    ssl_sni_hostname = "http-me.glitch.me"
+    override_host = "http-me.glitch.me"
   }
 
-  ##### Set the http-me.edgecompute.app origin when the http-me request header is present
-  # snippet {
-  #   name = "set_http-me_origin"
-  #   content = file("${path.module}/vcl/set_httpme_origin.vcl")
-  #   type = "init"
-  #   priority = 100
-  # }
+  ##### Set the http-me.glitch.me origin when the http-me request header is present
+  snippet {
+    name = "set_httpme_origin"
+    content = file("${path.module}/snippets/set_httpme_origin.vcl")
+    type = "init"
+    priority = 100
+  }
 
   ##### Rate limit by request header "user-id" - Orange frodo
-  # snippet {
-  #   name = "Edge Rate Limit by user-id request header with dictionaries"
-  #   content = file("${path.module}/snippets/edge_rate_limiting_request_header_with_dictionary.vcl")
-  #   type = "init"
-  #   priority = 115
-  # }
-
   snippet {
-    name = "Edge Rate Limiting low volume"
-    content = file("${path.module}/vcl/edge_rate_limiting_low_volume_allinone.vcl")
+    name = "Edge Rate Limit by user-id request header with dictionaries"
+    content = file("${path.module}/snippets/edge_rate_limiting_request_header_with_dictionary.vcl")
     type = "init"
     priority = 115
   }
@@ -85,12 +78,12 @@ resource "fastly_service_vcl" "edge-rate-limiting-terraform-service" {
   # }
     
     ##### It is necessecary to disable caching for ERL to increment the counter for origin/backend requests
-  # snippet {
-  #   name = "Disable caching"
-  #   content = file("${path.module}/vcl/disable_caching.vcl")
-  #   type = "recv"
-  #   priority = 100
-  # }
+  snippet {
+    name = "Disable caching"
+    content = file("${path.module}/snippets/disable_caching.vcl")
+    type = "recv"
+    priority = 100
+  }
 
   # dictionary {
   #   name       = "rl_user_agents"
@@ -103,18 +96,98 @@ resource "fastly_service_vcl" "edge-rate-limiting-terraform-service" {
     force_destroy = true
 }
 
-# resource "fastly_service_dictionary_items" "rl_user_agents" {
-#   for_each = {
-#     for d in fastly_service_vcl.edge-rate-limiting-terraform-service.dictionary : d.name => d if d.name == "rl_user_agents"
-#   }
-#   service_id = fastly_service_vcl.edge-rate-limiting-terraform-service.id
-#   dictionary_id = each.value.dictionary_id
-
-#   items = {
-#     "python-requests": "true",
-#   }
-#   manage_items = true
-# }
+resource "fastly_service_dictionary_items" "static_file_ext" {
+  for_each = {
+    for d in fastly_service_vcl.edge-rate-limiting-terraform-service.dictionary : d.name => d if d.name == "rl_user_agents"
+  }
+  service_id = fastly_service_vcl.edge-rate-limiting-terraform-service.id
+  dictionary_id = each.value.dictionary_id
+  items = {
+    "aiff": "true"
+    "au": "true"
+    "avi": "true"
+    "bin": "true"
+    "bmp": "true"
+    "cab": "true"
+    "carb": "true"
+    "cct": "true"
+    "cdf": "true"
+    "class": "true"
+    "css": "true"
+    "csv": "true"
+    "dcr": "true"
+    "doc": "true"
+    "docx": "true"
+    "dtd": "true"
+    "ejs": "true"
+    "ejss": "true"
+    "eot": "true"
+    "eps": "true"
+    "exe": "true"
+    "flv": "true"
+    "gcf": "true"
+    "gff": "true"
+    "gif": "true"
+    "grv": "true"
+    "hdml": "true"
+    "hdp": "true"
+    "hqx": "true"
+    "ico": "true"
+    "ini": "true"
+    "jar": "true"
+    "jp2": "true"
+    "jpeg": "true"
+    "jpg": "true"
+    "js": "true"
+    "jxr": "true"
+    "mid": "true"
+    "midi": "true"
+    "mov": "true"
+    "mp3": "true"
+    "mp4": "true"
+    "nc": "true"
+    "ogv": "true"
+    "otc": "true"
+    "otf": "true"
+    "pct": "true"
+    "pdf": "true"
+    "pict": "true"
+    "pls": "true"
+    "png": "true"
+    "ppc": "true"
+    "ppt": "true"
+    "pptx": "true"
+    "ps": "true"
+    "pws": "true"
+    "svg": "true"
+    "svgz": "true"
+    "swa": "true"
+    "swf": "true"
+    "tif": "true"
+    "tiff": "true"
+    "ttc": "true"
+    "ttf": "true"
+    "txt": "true"
+    "vbs": "true"
+    "w32": "true"
+    "wav": "true"
+    "wbmp": "true"
+    "wdp": "true"
+    "webm": "true"
+    "webp": "true"
+    "wml": "true"
+    "wmlc": "true"
+    "wmls": "true"
+    "wmlsc": "true"
+    "woff": "true"
+    "woff2": "true"
+    "xls": "true"
+    "xlsx": "true"
+    "xsd": "true"
+    "zip": "true"
+  }
+  manage_items = true
+}
 
 
 
@@ -144,9 +217,6 @@ output "live_laugh_love_edge_rate_limiting" {
 
     ## Rate Limit based on URL
     siege "https://${var.USER_DOMAIN_NAME}/foo/v1/menu/abc" -t 5s
-
-    ## Add IP to Rate Limit Penalty box based on origin data
-    echo "GET https://${var.USER_DOMAIN_NAME}/some/path/123?x-obj-status=206" | vegeta attack -header "vegeta-test:ratelimittest1" -duration=30s  | vegeta report -type=text
 
     # Run the following curl and vegeta commands in a seperate adjacent windows with domain inspector to see the blocks in the Fastly UI.
 
