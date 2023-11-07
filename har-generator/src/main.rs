@@ -4,15 +4,15 @@ use fastly::{ConfigStore, Error, Request, Response};
 // use fastly::handle::client_ip_addr;
 use serde_json::json;
 use serde_json::Value;
-use base64::encode;
+// use base64::encode;
 // use Engine::encode;
+use base64::{Engine as _, engine::general_purpose};
+
 
 #[fastly::main]
 fn main(mut req: Request) -> Result<Response, Error> {
     // make a copy of the req
-    let mut req_cloned: Request = req.clone_with_body();
-
-    
+    let mut req_cloned: Request = req.clone_with_body();        
 
     // Ok(Response::from_status(StatusCode::OK))
     let mut resp: Response = req.send("origin")?;
@@ -30,11 +30,15 @@ fn send_to_har(mut req: Request, mut resp: Response) -> Result<&'static str, Err
     let req_method: String = req.get_method_str().to_owned();
 
     // Get request headers
-    let mut req_headers_data: Value = serde_json::json!({});
+    let mut req_headers_vec: Vec<Value> = Vec::new();
     for (n, v) in req.get_headers() {
         let req_header_name_str: &str = n.as_str();
         let req_header_val_str: &str = v.to_str()?;
-        req_headers_data[req_header_name_str] = json!(req_header_val_str);
+        let req_header_json: Value = json!({
+          "name" : &req_header_name_str,
+          "value" : &req_header_val_str
+        });
+        req_headers_vec.push(req_header_json);
     }
 
     // Get url
@@ -42,61 +46,32 @@ fn send_to_har(mut req: Request, mut resp: Response) -> Result<&'static str, Err
 
     // Take the body of the request.
     // let req_body: String = encode(req.take_body_str_lossy());
-    let req_body: String = encode(req.take_body_bytes());
+    let req_body: String = req.take_body_str();
 
     // Get host header
-    let host_str: &str = req_url.host_str().ok_or("").unwrap();
+    // let host_str: &str = req_url.host_str().ok_or("").unwrap();
 
     // Generate a request
-    let request_id: &str = client_request_id().ok_or("noId").unwrap();
+    // let request_id: &str = client_request_id().ok_or("noId").unwrap();
 
     // let client_ip_addr = client_ip_addr().unwrap().to_string();
 
     // Get the response data
     // Get request headers
-    let mut resp_headers_data: Value = serde_json::json!({});
-    for (n, v) in req.get_headers() {
+    let mut resp_headers_vec: Vec<Value> = Vec::new();
+
+    for (n, v) in resp.get_headers() {
         let resp_header_name_str: &str = n.as_str();
         let resp_header_val_str: &str = v.to_str()?;
-        resp_headers_data[resp_header_name_str] = json!(resp_header_val_str);
-    }
-    let resp_body: String = encode(resp.take_body_bytes());
-    
-    /*
-    let mut formatted_data: Value = serde_json::json!({
-      "requestID": &request_id,
-      "scheme": "http",
-      "destinationAddress": "127.0.0.1:80",
-      "destinationNamespace": "DESTNAMESPACEPLACEHOLDER",
-      "sourceAddress": "127.0.0.1:80",
-      "request": {
-        "method": &req_method,
-        "path": &req_url.as_str(),
-        "host": &host_str,
-        "common": {
-          "version": "1",
-          "headers": [
-              &req_headers_data
-          ],
-          "body": &req_body,
-          "TruncatedBody": false
-        }
-      },
-      "response": {
-        "statusCode": resp.get_status().as_u16().to_string(),
-        "common": {
-          "version": "1",
-          "headers": &resp_headers_data,
-          "headers": [
-            &resp_headers_data
-          ],
-          "body": &resp_body,
-          "TruncatedBody": false
-        }
-      }
-    });
-    */
+        let resp_header_json: Value = json!({
+          "name" : &resp_header_name_str,
+          "value" : &resp_header_val_str
+        });
 
+        resp_headers_vec.push(resp_header_json);
+    }
+    let resp_body: String = general_purpose::STANDARD.encode(resp.take_body_bytes());
+    
     let mut har_formatted_data: Value = serde_json::json!({
       "log": {
         "version": "1.2",
@@ -111,9 +86,7 @@ fn send_to_har(mut req: Request, mut resp: Response) -> Result<&'static str, Err
               "method": &req_method,
               "url": &req_url.as_str(),
               "httpVersion": "http/2.0",
-              "headers": [
-                &req_headers_data
-              ],
+              "headers": &req_headers_vec,
               "queryString": [],
               "cookies": [],
               "headersSize": -1,
@@ -123,9 +96,7 @@ fn send_to_har(mut req: Request, mut resp: Response) -> Result<&'static str, Err
               "status": resp.get_status().as_u16().to_string(),
               "statusText": "Found",
               "httpVersion": "http/2.0",
-              "headers": [
-                &resp_headers_data
-              ],
+              "headers": &resp_headers_vec,
               "cookies": [],
               "content": {
                 "size": 0,
@@ -152,6 +123,19 @@ fn send_to_har(mut req: Request, mut resp: Response) -> Result<&'static str, Err
         ]
       }
     });
+
+    // Set the request body info if there is a request body
+    if req_body.len() > 0 {
+      println!("{}", har_formatted_data["log"]["entries"][0]["request"]);
+      println!("{}", har_formatted_data["log"]["entries"][0]["request"]);
+
+      har_formatted_data["log"]["entries"][0]["request"]["postData"] = json!({
+        "mimeType": "application/json",
+        "text": req_body
+      });
+
+    }
+    
 
     println!("{}", &har_formatted_data);
     // println!("{}", &formatted_data);

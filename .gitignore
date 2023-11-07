@@ -32,3 +32,5 @@ NGWAF-Deployment-Examples/ngwaf-CloudWAF/terraform.tfvars
 *.info
 
 openapi-documentor/apiclarity/values.yaml
+mtls/cert.pem
+mtls/key.pem
