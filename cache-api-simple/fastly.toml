@@ -7,4 +7,4 @@ description = ""
 language = "rust"
 manifest_version = 3
 name = "cache-api-simple"
-service_id = "RC85dlFEGhSGMoBrjLi6g7"
+service_id = ""
