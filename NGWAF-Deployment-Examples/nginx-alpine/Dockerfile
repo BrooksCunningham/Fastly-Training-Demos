@@ -35,11 +35,13 @@ RUN echo https://apk.signalsciences.net/$(sed 's/...$//' /etc/alpine-release)/ma
 
 RUN wget -q https://apk.signalsciences.net/sigsci_apk.pub ; mv sigsci_apk.pub /etc/apk/keys
 # RUN echo https://apk.signalsciences.net/$(sed 's/...$//' /etc/alpine-release)/main | tee -a /etc/apk/repositories
-RUN echo https://apk.signalsciences.net/3.17/main | tee -a /etc/apk/repositories
-RUN apk update
-RUN apk add sigsci-agent
+# RUN echo https://apk.signalsciences.net/3.17/main | tee -a /etc/apk/repositories
+RUN wget -q https://apk.signalsciences.net/3.17/main/x86_64/sigsci-agent-4.49.0.apk
+RUN apk add --allow-untrusted sigsci-agent-4.49.0.apk
+# RUN apk update
+# RUN apk add sigsci-agent
 
-RUN cat /etc/apk/repositories
+# RUN cat /etc/apk/repositories
 
 EXPOSE 80
 
