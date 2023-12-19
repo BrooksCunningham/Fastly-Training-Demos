@@ -1,8 +1,8 @@
-FROM alpine:3.15
+FROM alpine:3.17
 ARG url="https://dl.signalsciences.net/sigsci-module-nginx/sigsci-module-nginx_latest.tar.gz"
 ARG destination="/opt/sigsci"
 
-COPY install.sh /opt
+# COPY install.sh /opt
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
@@ -31,9 +31,15 @@ RUN mkdir -p /etc/sigsci
 COPY agent.conf /etc/sigsci/
 
 # RUN apk update && apk add wget \
-RUN wget -q https://apk.signalsciences.net/sigsci_apk.pub ; mv sigsci_apk.pub /etc/apk/keys \
-    && echo https://apk.signalsciences.net/$(sed 's/...$//' /etc/alpine-release)/main | tee -a /etc/apk/repositories && apk update  \
-    && apk add sigsci-agent
+RUN echo https://apk.signalsciences.net/$(sed 's/...$//' /etc/alpine-release)/main
+
+RUN wget -q https://apk.signalsciences.net/sigsci_apk.pub ; mv sigsci_apk.pub /etc/apk/keys
+# RUN echo https://apk.signalsciences.net/$(sed 's/...$//' /etc/alpine-release)/main | tee -a /etc/apk/repositories
+RUN echo https://apk.signalsciences.net/3.17/main | tee -a /etc/apk/repositories
+RUN apk update
+RUN apk add sigsci-agent
+
+RUN cat /etc/apk/repositories
 
 EXPOSE 80
 
