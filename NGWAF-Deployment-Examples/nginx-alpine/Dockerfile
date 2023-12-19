@@ -1,25 +1,40 @@
-FROM nginx:1.25.3-alpine3.18
+FROM alpine:3.15
+ARG url="https://dl.signalsciences.net/sigsci-module-nginx/sigsci-module-nginx_latest.tar.gz"
+ARG destination="/opt/sigsci"
 
-RUN wget -q https://apk.signalsciences.net/sigsci_apk.pub && mv sigsci_apk.pub /etc/apk/keys/
-RUN echo https://apk.signalsciences.net/3.18/main | tee -a /etc/apk/repositories && apk update
-#RUN openssl rsa -pubin -in /etc/apk/keys/sigsci_apk.pub -text -noout
+COPY install.sh /opt
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+RUN apk update \
+    && apk add wget \
+    && apk add curl \
+    && apk add nginx \
+    && apk add nginx-mod-http-lua
+
+WORKDIR /opt/sigsci
+RUN curl -L "$url" -o "$destination/sigsci-module-nginx.tar.gz"
+RUN tar -xzvf "$destination/sigsci-module-nginx.tar.gz" -C "$destination"
+RUN mv "$destination/sigsci-module-nginx" "$destination/nginx"
+RUN rm "$destination/sigsci-module-nginx.tar.gz"
+
+RUN ln -s "/opt/sigsci/nginx/sigsci.conf" "/etc/nginx/http.d/sigsci.conf"
+
+COPY default.conf /etc/nginx/http.d/default.conf
+
+# RUN chmod +x /opt/install.sh && sh /opt/install.sh
+COPY sigsci_check_lua.conf /opt/sigsci/nginx/sigsci_check_lua.conf
+
+# Create the target directory for agent.conf
 RUN mkdir -p /etc/sigsci
-    
-# Install required packages
-RUN apk update && \
-    apk add wget openssl && \
-    apk add sigsci-agent && \
-    apk add nginx-module-sigsci-nxo-1.25.3
+COPY agent.conf /etc/sigsci/
 
-#RUN rm /etc/nginx/conf.d/default.conf
-#COPY nginx.conf /etc/nginx/conf.d/
+# RUN apk update && apk add wget \
+RUN wget -q https://apk.signalsciences.net/sigsci_apk.pub ; mv sigsci_apk.pub /etc/apk/keys \
+    && echo https://apk.signalsciences.net/$(sed 's/...$//' /etc/alpine-release)/main | tee -a /etc/apk/repositories && apk update  \
+    && apk add sigsci-agent
 
-# RUN sed -i 's@^pid.*@&\nload_module /usr/lib/nginx/modules/ngx_http_sigsci_module.so;\n@' /etc/nginx/nginx.conf \
-#     && sed -i 's@^pid.*@&\nload_module /usr/lib/nginx/modules/ndk_http_module.so;\n@' /etc/nginx/nginx.conf 
+EXPOSE 80
 
-COPY nginx.conf /etc/nginx/nginx.conf
-
-RUN apk add vim
-
-# CMD [ "/bin/sh" ]
-CMD /usr/sbin/nginx & /usr/sbin/sigsci-agent -config /etc/sigsci/agent.conf
+CMD ["/usr/local/bin/entrypoint.sh"]
