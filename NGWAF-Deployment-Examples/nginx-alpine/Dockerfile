@@ -1,48 +1,33 @@
-FROM alpine:3.17
-ARG url="https://dl.signalsciences.net/sigsci-module-nginx/sigsci-module-nginx_latest.tar.gz"
-ARG destination="/opt/sigsci"
+FROM openresty/openresty:1.21.4.1-0-alpine-apk
 
-# COPY install.sh /opt
+ARG DEST="/opt/sigsci"
+ARG NGLUA_URL="https://dl.signalsciences.net/sigsci-module-nginx/sigsci-module-nginx_latest.tar.gz"
 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+# ENV SIGSCI_ACCESSKEYID=""
+# ENV SIGSCI_SECRETACCESSKEY=""
+# ENV SIGSCI_WAF_DATA_LOG="/dev/stdout"
 
-RUN apk update \
-    && apk add wget \
-    && apk add curl \
-    && apk add nginx \
-    && apk add nginx-mod-http-lua
 
-WORKDIR /opt/sigsci
-RUN curl -L "$url" -o "$destination/sigsci-module-nginx.tar.gz"
-RUN tar -xzvf "$destination/sigsci-module-nginx.tar.gz" -C "$destination"
-RUN mv "$destination/sigsci-module-nginx" "$destination/nginx"
-RUN rm "$destination/sigsci-module-nginx.tar.gz"
+RUN apk update && apk add wget curl \
+    && wget -q https://apk.signalsciences.net/sigsci_apk.pub ; mv sigsci_apk.pub /etc/apk/keys
 
-RUN ln -s "/opt/sigsci/nginx/sigsci.conf" "/etc/nginx/http.d/sigsci.conf"
+# && echo "https://apk.signalsciences.net/$(sed 's/..$//' /etc/alpine-release)/main" | tee -a /etc/apk/repositories && apk update  \
+# && apk add sigsci-agent
 
-COPY default.conf /etc/nginx/http.d/default.conf
-
-# RUN chmod +x /opt/install.sh && sh /opt/install.sh
-COPY sigsci_check_lua.conf /opt/sigsci/nginx/sigsci_check_lua.conf
-
-# Create the target directory for agent.conf
-RUN mkdir -p /etc/sigsci
-COPY agent.conf /etc/sigsci/
-
-# RUN apk update && apk add wget \
-RUN echo https://apk.signalsciences.net/$(sed 's/...$//' /etc/alpine-release)/main
-
-RUN wget -q https://apk.signalsciences.net/sigsci_apk.pub ; mv sigsci_apk.pub /etc/apk/keys
-# RUN echo https://apk.signalsciences.net/$(sed 's/...$//' /etc/alpine-release)/main | tee -a /etc/apk/repositories
-# RUN echo https://apk.signalsciences.net/3.17/main | tee -a /etc/apk/repositories
-RUN wget -q https://apk.signalsciences.net/3.17/main/x86_64/sigsci-agent-4.49.0.apk
+RUN wget -q https://apk.signalsciences.net/3.18/main/x86_64/sigsci-agent-4.49.0.apk
 RUN apk add --allow-untrusted sigsci-agent-4.49.0.apk
-# RUN apk update
-# RUN apk add sigsci-agent
 
-# RUN cat /etc/apk/repositories
 
-EXPOSE 80
+COPY agent.conf /etc/sigsci/agent.conf
 
-CMD ["/usr/local/bin/entrypoint.sh"]
+RUN mkdir -p ${DEST} && \
+    curl -L ${NGLUA_URL} -o ${DEST}/sigsci-module-nginx.tar.gz && \
+    tar -xzvf ${DEST}/sigsci-module-nginx.tar.gz -C ${DEST} && \
+    mv ${DEST}/sigsci-module-nginx ${DEST}/nginx && \
+    rm ${DEST}/sigsci-module-nginx.tar.gz
+
+
+
+RUN ln -s "/opt/sigsci/nginx/sigsci.conf" "/etc/nginx/conf.d/sigsci.conf"
+
+CMD /bin/sh -c "/usr/sbin/sigsci-agent & /usr/local/openresty/bin/openresty -g 'daemon off;'"
