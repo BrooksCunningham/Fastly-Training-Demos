@@ -2,15 +2,15 @@
 # https://github.com/openresty/docker-openresty
 
 ARG RESTY_IMAGE_BASE="alpine"
-ARG RESTY_IMAGE_TAG="3.18"
+ARG RESTY_IMAGE_TAG="3.17"
 
 FROM ${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG}
 
 LABEL maintainer="Evan Wies <evan@neomantra.net>"
 
 # Docker Build Arguments
-ARG RESTY_IMAGE_BASE="alpine"
-ARG RESTY_IMAGE_TAG="3.18"
+# ARG RESTY_IMAGE_BASE="alpine"
+# ARG RESTY_IMAGE_TAG="3.18"
 ARG RESTY_VERSION="1.21.4.3"
 ARG RESTY_OPENSSL_VERSION="1.1.1w"
 ARG RESTY_OPENSSL_PATCH_VERSION="1.1.1f"
@@ -178,7 +178,7 @@ RUN apk update && apk add wget curl \
 # && echo "https://apk.signalsciences.net/$(sed 's/..$//' /etc/alpine-release)/main" | tee -a /etc/apk/repositories && apk update  \
 # && apk add sigsci-agent
 
-RUN wget -q https://apk.signalsciences.net/3.18/main/x86_64/sigsci-agent-4.49.0.apk
+RUN wget -q https://apk.signalsciences.net/3.17/main/x86_64/sigsci-agent-4.49.0.apk
 RUN apk add --allow-untrusted sigsci-agent-4.49.0.apk
 
 
