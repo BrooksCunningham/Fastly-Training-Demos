@@ -32,23 +32,23 @@ fn main(req: Request) -> Result<Response, Error> {
     let cache_key: &[u8] = req.get_query_parameter("cache_key").unwrap_or("default_key").as_bytes();
     let (lookup_tx, core_cache_value) = read_core_cache_value(CacheKey::copy_from_slice(&cache_key));
 
-    let update_string = match req.get_query_parameter("delete_key") {
+    let update_value = match req.get_query_parameter("delete_key") {
         delete_key if delete_key.is_some() => {
             delete_cache_key(lookup_tx, ["my_surragate_key"]);
-            "".to_string()
+            0
         },
         _ => {
-            let core_cache_string: String = core_cache_value.into_string();
+            let core_cache_value: String = core_cache_value.into_string();
             // Do anything you want with the updated value.
-            let update_string: String = format!("{}\n{}", &core_cache_string, req.get_path());
-            update_core_cache_value(update_string.as_bytes(), lookup_tx, ["my_surragate_key"]);
-            update_string
+            // let update_string: String = format!("{}\n{}", &core_cache_string, req.get_path());
+            update_core_cache_value(core_cache_value.as_bytes(), lookup_tx, ["my_surragate_key"]);
+            1
         },
     };
 
     // Create a new body that may be written into
     let mut resp_body: Body = Body::new();
-    resp_body.write_str(&update_string);
+    resp_body.write_str(&update_value.to_string());
 
     return Ok(Response::from_body(resp_body)
         .with_content_type(mime::TEXT_PLAIN_UTF_8)
