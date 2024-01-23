@@ -1,0 +1,135 @@
+# Example YAML configuration for the sidecar pattern.
+# https://docs.fastly.com/signalsciences/install-guides/kubernetes/kubernetes-reverse-proxy/
+
+# How to Run Locally Built Docker Images in Kubernetes
+# https://medium.com/swlh/how-to-run-locally-built-docker-images-in-kubernetes-b28fbc32cc1d
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-with-ngwaf-reverse-proxy-lb
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  type: LoadBalancer
+  selector:
+    app: nginx-with-ngwaf-reverse-proxy
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configmap
+data:
+  nginx.conf: |
+    user www-data;
+    worker_processes auto;
+    pid /run/nginx.pid;
+
+    # include /etc/nginx/modules-enabled/*.conf;
+
+    events {
+      worker_connections 768;
+      # multi_accept on;
+    }
+
+    http {
+      
+      ##
+      # Logging Settings
+      ##
+
+      access_log /var/log/nginx/access.log;
+      error_log /var/log/nginx/error.log;
+
+      # Fastly NGWAF Logging
+      # All options listed here, https://docs.fastly.com/signalsciences/install-guides/module-config/#nginx-c-binary-module
+      # sigsci_enabled on;
+      # sigsci_debug on;
+      # sigsci_agent_host unix:/sigsci/tmp/sigsci.sock;
+
+      server {
+          listen 80;
+          location / {
+            proxy_set_header Host "http-me.glitch.me";
+            proxy_pass http://httpme.glitch.me;
+          }
+          location /hello {
+            return 200 "Hello world from NGWAF and nginx!\n";
+          }
+      }
+    }
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-with-ngwaf-reverse-proxy
+spec:
+  selector:
+    matchLabels:
+      app: nginx-with-ngwaf-reverse-proxy
+  template:
+    metadata:
+      labels:
+        app: nginx-with-ngwaf-reverse-proxy
+    spec:
+      containers:
+      - name: sigsci-agent
+        image: signalsciences/sigsci-agent:latest
+        imagePullPolicy: 
+        env:
+        - name: SIGSCI_ACCESSKEYID
+          valueFrom:
+            secretKeyRef:
+              name: ngwaf-agent-keys
+              key: accesskeyid
+        - name: SIGSCI_SECRETACCESSKEY
+          valueFrom:
+            secretKeyRef:
+              name: ngwaf-agent-keys
+              key: secretaccesskey
+        - name: SIGSCI_REVPROXY_LISTENER
+          value: "listen_conf:{listener=http://0.0.0.0:8080,upstreams=https://http-me.glitch.me:443,access-log='/dev/stdout',pass-host-header=false}"
+        - name: SIGSCI_DEBUG_LOG_BLOCKED_REQUESTS
+          value: "1"
+        - name: SIGSCI_DEBUG_LOG_WEB_INPUTS
+          value: "1"
+        - name: SIGSCI_DEBUG_LOG_CONFIG_UPDATES
+          value: "1"
+        - name: SIGSCI_DEBUG_LOG_CONFIG_UPLOADS
+          value: "1"
+        - name: SIGSCI_DEBUG_LOG_WEB_OUTPUTS
+          value: "1"
+        volumeMounts:
+        - name: sigsci-tmp
+          mountPath: /sigsci/tmp
+
+      - name: nginx
+        # image: nginx:latest
+        image: bcunningham/nginx-module
+        imagePullPolicy: Never
+        # Never pull the remote instance since this is built locally
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        # Shared mount with sigsci-agent container where the socket is shared via emptyDir volume
+        # - name: sigsci-tmp
+        #   mountPath: /sigsci/tmp
+        - name: nginx-volume
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+          readOnly: true
+
+      # restartPolicy: Never
+      volumes:
+        - name: sigsci-tmp
+          emptyDir: {}
+        - name: nginx-volume
+          configMap:
+            name: nginx-configmap
+            items:
+              - key: nginx.conf
+                path: nginx.conf

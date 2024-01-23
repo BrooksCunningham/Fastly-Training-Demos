@@ -7,14 +7,6 @@ FROM ubuntu:20.04
 # Install Nginx
 RUN apt-get -y update && apt-get -y install nginx=1.18.0-0ubuntu1.4
 
-# copy config and app over
-# RUN  mkdir /app
-# COPY nginx-config/nginx.conf /etc/nginx/nginx.conf
-# COPY app/default.conf /etc/nginx/sites-enabled/default.conf
-# COPY start.sh /app/start.sh
-# RUN chmod +x /app/start.sh
-
-
 # For manually modifying files
 RUN apt-get -y install vim
 

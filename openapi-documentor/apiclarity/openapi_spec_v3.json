@@ -1,0 +1,357 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+      "title": "http-me.edgecompute.app",
+      "description": "Have fun with HTTP",
+      "version": "1.0.0",
+      "contact": {}
+    },
+    "servers": [
+      {
+        "url": "https://http-me.edgecompute.app"
+      }
+    ],
+    "paths": {
+      "/": {
+        "get": {
+          "summary": "https://http-me.edgecompute.app/",
+          "description": "https://http-me.edgecompute.app/",
+          "operationId": "httpsHttpMeEdgecomputeApp",
+          "parameters": [
+            {
+              "name": "host",
+              "in": "header",
+              "schema": {
+                "type": "string",
+                "example": "http-me.edgecompute.app"
+              }
+            },
+            {
+              "name": "User-Agent",
+              "in": "header",
+              "schema": {
+                "type": "string",
+                "example": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          }
+        }
+      },
+      "/status/{codes}": {
+        "delete": {
+          "parameters": [
+            {
+              "in": "path",
+              "name": "codes"
+            }
+          ],
+          "produces": [
+            "text/plain"
+          ],
+          "responses": {
+            "100": {
+              "description": "Informational responses"
+            },
+            "200": {
+              "description": "Success"
+            },
+            "300": {
+              "description": "Redirection"
+            },
+            "400": {
+              "description": "Client Errors"
+            },
+            "500": {
+              "description": "Server Errors"
+            }
+          },
+          "summary": "Return status code or random status code if more than one are given",
+          "tags": [
+            "Status codes"
+          ]
+        },
+        "get": {
+          "parameters": [
+            {
+              "in": "path",
+              "name": "codes"
+            }
+          ],
+          "produces": [
+            "text/plain"
+          ],
+          "responses": {
+            "100": {
+              "description": "Informational responses"
+            },
+            "200": {
+              "description": "Success"
+            },
+            "300": {
+              "description": "Redirection"
+            },
+            "400": {
+              "description": "Client Errors"
+            },
+            "500": {
+              "description": "Server Errors"
+            }
+          },
+          "summary": "Return status code or random status code if more than one are given",
+          "tags": [
+            "Status codes"
+          ]
+        },
+        "patch": {
+          "parameters": [
+            {
+              "in": "path",
+              "name": "codes"
+            }
+          ],
+          "produces": [
+            "text/plain"
+          ],
+          "responses": {
+            "100": {
+              "description": "Informational responses"
+            },
+            "200": {
+              "description": "Success"
+            },
+            "300": {
+              "description": "Redirection"
+            },
+            "400": {
+              "description": "Client Errors"
+            },
+            "500": {
+              "description": "Server Errors"
+            }
+          },
+          "summary": "Return status code or random status code if more than one are given",
+          "tags": [
+            "Status codes"
+          ]
+        },
+        "post": {
+          "parameters": [
+            {
+              "in": "path",
+              "name": "codes"
+            }
+          ],
+          "produces": [
+            "text/plain"
+          ],
+          "responses": {
+            "100": {
+              "description": "Informational responses"
+            },
+            "200": {
+              "description": "Success"
+            },
+            "300": {
+              "description": "Redirection"
+            },
+            "400": {
+              "description": "Client Errors"
+            },
+            "500": {
+              "description": "Server Errors"
+            }
+          },
+          "summary": "Return status code or random status code if more than one are given",
+          "tags": [
+            "Status codes"
+          ]
+        },
+        "put": {
+          "parameters": [
+            {
+              "in": "path",
+              "name": "codes"
+            }
+          ],
+          "produces": [
+            "text/plain"
+          ],
+          "responses": {
+            "100": {
+              "description": "Informational responses"
+            },
+            "200": {
+              "description": "Success"
+            },
+            "300": {
+              "description": "Redirection"
+            },
+            "400": {
+              "description": "Client Errors"
+            },
+            "500": {
+              "description": "Server Errors"
+            }
+          },
+          "summary": "Return status code or random status code if more than one are given",
+          "tags": [
+            "Status codes"
+          ]
+        },
+        "trace": {
+          "parameters": [
+            {
+              "in": "path",
+              "name": "codes"
+            }
+          ],
+          "produces": [
+            "text/plain"
+          ],
+          "responses": {
+            "100": {
+              "description": "Informational responses"
+            },
+            "200": {
+              "description": "Success"
+            },
+            "300": {
+              "description": "Redirection"
+            },
+            "400": {
+              "description": "Client Errors"
+            },
+            "500": {
+              "description": "Server Errors"
+            }
+          },
+          "summary": "Return status code or random status code if more than one are given",
+          "tags": [
+            "Status codes"
+          ]
+        }
+      },
+      "/anything/{anything}": {
+        "delete": {
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Anything passed in request"
+            }
+          },
+          "summary": "Returns anything passed in request data.",
+          "tags": [
+            "Anything"
+          ]
+        },
+        "get": {
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Anything passed in request"
+            }
+          },
+          "summary": "Returns anything passed in request data.",
+          "tags": [
+            "Anything"
+          ]
+        },
+        "patch": {
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          },
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Anything passed in request"
+            }
+          },
+          "summary": "Returns anything passed in request data.",
+          "tags": [
+            "Anything"
+          ]
+        },
+        "post": {
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          },
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Anything passed in request"
+            }
+          },
+          "summary": "Returns anything passed in request data.",
+          "tags": [
+            "Anything"
+          ]
+        },
+        "put": {
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Anything passed in request"
+            }
+          },
+          "summary": "Returns anything passed in request data.",
+          "tags": [
+            "Anything"
+          ]
+        },
+        "trace": {
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Anything passed in request"
+            }
+          },
+          "summary": "Returns anything passed in request data.",
+          "tags": [
+            "Anything"
+          ]
+        }
+      }
+    },
+    "tags": []
+  }

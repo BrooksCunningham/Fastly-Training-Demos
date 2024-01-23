@@ -32,23 +32,33 @@ fn main(req: Request) -> Result<Response, Error> {
     let cache_key: &[u8] = req.get_query_parameter("cache_key").unwrap_or("default_key").as_bytes();
     let (lookup_tx, core_cache_value) = read_core_cache_value(CacheKey::copy_from_slice(&cache_key));
 
-    let update_value = match req.get_query_parameter("delete_key") {
+    let parsed_core_cache_value = match core_cache_value {
+        ccv => {
+            let cached_int: i32 = i32::from_be_bytes(ccv.into_bytes().try_into().unwrap_or([0, 0, 0, 0]));
+            cached_int
+        },
+        _ => 0,
+        
+    };
+
+    let updated_core_cache_value: i32 = match req.get_query_parameter("delete_key") {
         delete_key if delete_key.is_some() => {
             delete_cache_key(lookup_tx, ["my_surragate_key"]);
             0
         },
         _ => {
-            let core_cache_value: String = core_cache_value.into_string();
+            // let core_cache_value: String = core_cache_value.into_string();
+            let value = 1 + parsed_core_cache_value;
             // Do anything you want with the updated value.
             // let update_string: String = format!("{}\n{}", &core_cache_string, req.get_path());
-            update_core_cache_value(core_cache_value.as_bytes(), lookup_tx, ["my_surragate_key"]);
-            1
+            update_core_cache_value(value.to_be_bytes(), lookup_tx, ["my_surragate_key"]);
+            value
         },
     };
 
     // Create a new body that may be written into
     let mut resp_body: Body = Body::new();
-    resp_body.write_str(&update_value.to_string());
+    resp_body.write_str(&updated_core_cache_value.to_string());
 
     return Ok(Response::from_body(resp_body)
         .with_content_type(mime::TEXT_PLAIN_UTF_8)
@@ -77,8 +87,8 @@ fn read_core_cache_value(cache_key: CacheKey) -> (Transaction, Body) {
     }
 }
 
-fn update_core_cache_value(contents: &[u8], lookup_tx: Transaction, surrogate_keys: [&str; 1]) {
-    let contents: &[u8] = contents;
+fn update_core_cache_value(contents: [u8; 4], lookup_tx: Transaction, surrogate_keys: [&str; 1]) {
+    let contents: [u8; 4] = contents;
     let ttl: Duration = Duration::from_secs(0);
     let stale_while_revalidation: Duration = Duration::from_secs(600);
     match lookup_tx.must_insert_or_update() {
@@ -91,7 +101,7 @@ fn update_core_cache_value(contents: &[u8], lookup_tx: Transaction, surrogate_ke
                 // stream back the object so we can use it after inserting
                 .execute_and_stream_back()
                 .unwrap();
-            writer.write_all(contents).unwrap();
+            writer.write_all(&contents).unwrap();
             writer.finish().unwrap();
             println!("Inserted value to cache");
         }

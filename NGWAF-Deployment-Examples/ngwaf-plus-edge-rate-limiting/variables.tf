@@ -33,5 +33,4 @@ variable "USER_VCL_SERVICE_BACKEND_HOSTNAME" {
   type = string
   description = "Backend for your service."
   default = "http-me.edgecompute.app"
-  # default = "https://info.demotool.site/"
 }
