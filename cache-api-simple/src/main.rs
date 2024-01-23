@@ -31,12 +31,20 @@ fn main(req: Request) -> Result<Response, Error> {
     // Attempt to get a cache key from the query param cache_key or just use a default key
     let cache_key: &[u8] = req.get_query_parameter("cache_key").unwrap_or("default_key").as_bytes();
     let (lookup_tx, core_cache_value) = get_core_cache_value(CacheKey::copy_from_slice(&cache_key));
-    let core_cache_string: String = core_cache_value.into_string();
 
-    // Do anything you want with the updated value.
-    let update_string = format!("{}\n{}", &core_cache_string, req.get_path());
-
-    insert_core_cache_values(update_string.as_bytes(), lookup_tx, ["my_surragate_key"]);
+    let update_string = match req.get_query_parameter("delete_key") {
+        delete_key if delete_key.is_some() => {
+            delete_cache_key(lookup_tx, ["my_surragate_key"]);
+            "".to_string()
+        },
+        _ => {
+            let core_cache_string: String = core_cache_value.into_string();
+            // Do anything you want with the updated value.
+            let update_string: String = format!("{}\n{}", &core_cache_string, req.get_path());
+            insert_core_cache_values(update_string.as_bytes(), lookup_tx, ["my_surragate_key"]);
+            update_string
+        },
+    };
 
     // Create a new body that may be written into
     let mut resp_body: Body = Body::new();
@@ -73,7 +81,7 @@ fn get_core_cache_value(cache_key: CacheKey) -> (Transaction, Body) {
 fn insert_core_cache_values(contents: &[u8], lookup_tx: Transaction, surrogate_keys: [&str; 1]) {
     let contents: &[u8] = contents;
     let ttl: Duration = Duration::from_secs(0);
-    let stale_while_revalidation: Duration = Duration::from_secs(10);
+    let stale_while_revalidation: Duration = Duration::from_secs(600);
     match lookup_tx.must_insert_or_update() {
         true => {
             let (mut writer, _found) = lookup_tx
@@ -86,7 +94,30 @@ fn insert_core_cache_values(contents: &[u8], lookup_tx: Transaction, surrogate_k
                 .unwrap();
             writer.write_all(contents).unwrap();
             writer.finish().unwrap();
+            println!("Inserted value to cache");
         }
         _ => println!("Did not insert for some reason... Weird."),
+    }
+}
+
+fn delete_cache_key(lookup_tx: Transaction, surrogate_keys: [&str; 1]) {
+    let contents: &[u8] = "".as_bytes();
+    let ttl: Duration = Duration::from_secs(0);
+    let stale_while_revalidation: Duration = Duration::from_secs(0);
+    match lookup_tx.must_insert_or_update() {
+        true => {
+            let (mut writer, _found) = lookup_tx
+                .insert(ttl)
+                .stale_while_revalidate(stale_while_revalidation)
+                .surrogate_keys(surrogate_keys)
+                .known_length(contents.len() as u64)
+                // stream back the object so we can use it after inserting
+                .execute_and_stream_back()
+                .unwrap();
+            writer.write_all(contents).unwrap();
+            writer.finish().unwrap();
+            println!("Cache key deleted")
+        }
+        _ => println!("Did not delete for some reason... Weird."),
     }
 }
