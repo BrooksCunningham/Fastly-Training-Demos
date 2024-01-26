@@ -14,4 +14,4 @@ docker run --name local-fastly-ngwaf \
 -it signalsciences/sigsci-agent
 ```
 
-From your local machine, run the command `curl http://0.0.0.0:8080` and see the agent registered in the UI.
+From your local machine, run the command `curl http://0.0.0.0:8888` and see the agent registered in the UI.
