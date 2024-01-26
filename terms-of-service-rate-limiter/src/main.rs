@@ -1,8 +1,8 @@
-use core::fmt;
+// use core::fmt;
 
 // use fastly::;
 // use fastly::{http::request, Error, Request, Response};
-use serde_json::json;
+// use serde_json::json;
 
 use {
     fastly::{
@@ -17,7 +17,7 @@ use {
         Response,
     },
     std::{
-        io::{Read, Write},
+        io::Write,
         time::Duration,
     },
 };
