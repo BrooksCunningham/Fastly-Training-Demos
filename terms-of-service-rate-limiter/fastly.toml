@@ -1,0 +1,45 @@
+# This file describes a Fastly Compute package. To learn more visit:
+# https://developer.fastly.com/reference/fastly-toml/
+
+authors = ["brookscunningham@gmail.com"]
+cloned_from = "https://github.com/fastly/compute-starter-kit-rust-empty"
+description = ""
+language = "rust"
+manifest_version = 3
+name = "terms-of-service-rate-limiter"
+service_id = ""
+
+[local_server]
+
+  [local_server.backends]
+
+    [local_server.backends.backend_httpme]
+      url = "https://http-me.edgecompute.app"
+
+  [local_server.product_tiers_rate]
+    [local_server.config_stores.product_tiers_rate]
+      "free" = 5
+      "gold" = 10
+      "platinum" = 20
+
+[setup]
+
+  [setup.backends]
+
+    [setup.backends.backend_httpme]
+      address = "http-me.edgecompute.app"
+      description = "Replicates the features of HTTPBin.org"
+      port = 443
+
+  [setup.config_stores]
+    [setup.config_stores.product_tiers_rate]
+      description = "Configuration product_tiers_rate"
+      
+      [setup.config_stores.service_config.items]
+        [setup.config_stores.service_config.items.free]
+          value = "5"
+        [setup.config_stores.service_config.items.gold]
+          value = "10"
+        [setup.config_stores.service_config.items.platinum]
+          value = "20"
+

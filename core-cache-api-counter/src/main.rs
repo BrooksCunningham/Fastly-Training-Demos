@@ -29,23 +29,26 @@ fn main(req: Request) -> Result<Response, Error> {
     );
 
     // Attempt to get a cache key from the query param cache_key or just use a default key
-    let cache_key: &[u8] = req.get_query_parameter("cache_key").unwrap_or("default_key").as_bytes();
-    let (lookup_tx, core_cache_value) = read_core_cache_value(CacheKey::copy_from_slice(&cache_key));
+    let cache_key: &[u8] = req
+        .get_query_parameter("cache_key")
+        .unwrap_or("default_key")
+        .as_bytes();
+    let (lookup_tx, core_cache_value) =
+        read_core_cache_value(CacheKey::copy_from_slice(&cache_key));
 
-    let parsed_core_cache_value = match core_cache_value {
-        ccv => {
-            let cached_int: i32 = i32::from_be_bytes(ccv.into_bytes().try_into().unwrap_or([0, 0, 0, 0]));
-            cached_int
-        },
-        _ => 0,
-        
-    };
+    let parsed_core_cache_value: i32 = i32::from_be_bytes(
+        core_cache_value
+            .into_bytes()
+            .try_into()
+            .unwrap_or([0, 0, 0, 0]),
+    );
 
-    let updated_core_cache_value: i32 = match req.get_query_parameter("delete_key") {
-        delete_key if delete_key.is_some() => {
+    let updated_core_cache_value: i32 = match req.get_query_str() {
+        qs if qs.unwrap_or("").contains("delete_key") => {
+            println!("deleting_key, {:?}", &cache_key);
             delete_cache_key(lookup_tx, ["my_surragate_key"]);
             0
-        },
+        }
         _ => {
             // let core_cache_value: String = core_cache_value.into_string();
             let value = 1 + parsed_core_cache_value;
@@ -53,7 +56,7 @@ fn main(req: Request) -> Result<Response, Error> {
             // let update_string: String = format!("{}\n{}", &core_cache_string, req.get_path());
             update_core_cache_value(value.to_be_bytes(), lookup_tx, ["my_surragate_key"]);
             value
-        },
+        }
     };
 
     // Create a new body that may be written into
@@ -62,13 +65,13 @@ fn main(req: Request) -> Result<Response, Error> {
 
     return Ok(Response::from_body(resp_body)
         .with_content_type(mime::TEXT_PLAIN_UTF_8)
-        .with_status(200))
-
+        .with_status(200));
 }
 
 fn read_core_cache_value(cache_key: CacheKey) -> (Transaction, Body) {
-    let lookup_tx = Transaction::lookup(cache_key).execute().unwrap();
+    println!("cache_key lookup, {:?}", &cache_key);
 
+    let lookup_tx = Transaction::lookup(cache_key).execute().unwrap();
     match lookup_tx.found() {
         Some(found) if found.is_stale() => {
             // a cached item was found; we use it now even though it might be stale,
@@ -103,7 +106,7 @@ fn update_core_cache_value(contents: [u8; 4], lookup_tx: Transaction, surrogate_
                 .unwrap();
             writer.write_all(&contents).unwrap();
             writer.finish().unwrap();
-            println!("Inserted value to cache");
+            println!("Inserted value to cache")
         }
         _ => println!("Did not insert for some reason... Weird."),
     }
@@ -112,21 +115,27 @@ fn update_core_cache_value(contents: [u8; 4], lookup_tx: Transaction, surrogate_
 fn delete_cache_key(lookup_tx: Transaction, surrogate_keys: [&str; 1]) {
     let contents: &[u8] = "".as_bytes();
     let ttl: Duration = Duration::from_secs(0);
-    let stale_while_revalidation: Duration = Duration::from_secs(0);
+    let stale_while_revalidation: Duration = Duration::ZERO;
     match lookup_tx.must_insert_or_update() {
         true => {
-            let (mut writer, _found) = lookup_tx
+            let mut writer = lookup_tx
                 .insert(ttl)
                 .stale_while_revalidate(stale_while_revalidation)
                 .surrogate_keys(surrogate_keys)
                 .known_length(contents.len() as u64)
                 // stream back the object so we can use it after inserting
-                .execute_and_stream_back()
+                .execute() //_and_stream_back()
+                // .execute_and_stream_back()
                 .unwrap();
-            writer.write_all(contents).unwrap();
+            writer.write_all(&contents).unwrap();
             writer.finish().unwrap();
             println!("Cache key deleted")
         }
         _ => println!("Did not delete for some reason... Weird."),
     }
 }
+
+// http "https://core-cache-counter.edgecompute.app/foo" -p=hb
+// http "https://core-cache-counter.edgecompute.app/foo?delete_key" -p=hb
+// http "https://core-cache-counter.edgecompute.app/foo?cache_key=key1" -p=hb
+// http "https://core-cache-counter.edgecompute.app/foo?cache_key=key1&delete_key" -p=hb
