@@ -53,8 +53,8 @@ data:
       server {
           listen 80;
           location / {
-            proxy_set_header Host "http-me.glitch.me";
-            proxy_pass http://httpme.glitch.me;
+            proxy_set_header Host "http-me.edgecompute.app";
+            proxy_pass https://http-me.edgecompute.app;
           }
           location /hello {
             return 200 "Hello world from NGWAF and nginx!\n";

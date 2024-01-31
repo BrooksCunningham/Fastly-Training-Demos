@@ -42,7 +42,7 @@ if (std.atoi(table.lookup(login_edge_rate_limit_config, "rl_low_volume_60_sec_bu
 }
 
 
-set var.rl_low_volume_entry = req.http.rl-key;
+set var.rl_low_volume_entry = req.http.user-id;
 if (req.restarts == 0 && fastly.ff.visits_this_service == 0
     && table.contains(rl_low_volume_methods, req.method)
     && table.contains(login_paths, std.tolower(req.url.path))

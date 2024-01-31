@@ -1,6 +1,7 @@
 DOCKERNAME?=localfastlyngwaf
 # OPENAPISPECFILE?="https://http-me.edgecompute.app/static-assets/openapi-spec.json"
-OPENAPISPECFILE?="https://petstore.swagger.io/v2/swagger.json"
+# OPENAPISPECFILE?="https://petstore.swagger.io/v2/swagger.json"
+OPENAPISPECFILE?="http://host.docker.internal:9999/api/apiInventory/2/reconstructed_swagger.json"
 
 pull:
 	docker pull signalsciences/sigsci-agent
