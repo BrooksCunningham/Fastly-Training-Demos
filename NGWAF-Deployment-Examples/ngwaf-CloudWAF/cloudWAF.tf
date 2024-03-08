@@ -29,7 +29,7 @@ resource "sigsci_corp_cloudwaf_instance" "test_corp_cloudwaf" {
             domains             = [
                 "*.global.ssl.fastly.net",
             ]
-            origin              = "https://httpbin.org"
+            origin              = "https://http-me.edgecompute.app/"
             pass_host_header    = false
             trust_proxy_headers = true
         }
