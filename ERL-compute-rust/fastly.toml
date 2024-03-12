@@ -1,0 +1,10 @@
+# This file describes a Fastly Compute package. To learn more visit:
+# https://developer.fastly.com/reference/fastly-toml/
+
+authors = ["brookscunningham@gmail.com"]
+cloned_from = "https://github.com/fastly/compute-starter-kit-rust-empty"
+description = ""
+language = "rust"
+manifest_version = 3
+name = "ERL-compute-rust"
+service_id = ""
