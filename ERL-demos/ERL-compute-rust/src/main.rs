@@ -21,8 +21,8 @@ fn main(req: Request) -> Result<Response, Error> {
     let result = limiter.check_rate(
         erl_entry, // The client to rate limit.
         1,                            // The number of requests this execution counts as.
-        RateWindow::SixtySecs,        // The time window to count requests within.
-        10, // The maximum number of requests allowed within the rate window.
+        RateWindow::OneSec,        // The time window to count requests within.
+        10, // The maximum calculated requests per second allowed within the rate window.
         Duration::from_secs(15 * 60), // The duration to block the client if the rate limit is exceeded.
     );
 
@@ -35,22 +35,28 @@ fn main(req: Request) -> Result<Response, Error> {
         }
     };
 
-    if is_blocked {
-        let my_data = json!({"msg":"You have sent too many requests recently. Try again later."});
-        return Ok(Response::from_status(StatusCode::TOO_MANY_REQUESTS)
-            .with_body_json(&my_data).unwrap())
-    }
-
     let rc_1_primitive: RateCounter = RateCounter::open("rc_1");
+    let pb_1_primitive: Penaltybox = Penaltybox::open("pb_1");
+    
     let rc_1_lookup_count: u32 = rc_1_primitive.lookup_count(erl_entry, fastly::erl::CounterDuration::SixtySecs)?;
+    let pb_1_lookup: bool = pb_1_primitive.has(erl_entry)?;
 
-    let resp_body: String = json!({"rc_1_lookup_count":rc_1_lookup_count, "is_blocked": is_blocked}).to_string();
+    let rl_info: String = json!({"rc_1_lookup_count":rc_1_lookup_count, "pb_1_lookup": pb_1_lookup, "is_blocked": is_blocked}).to_string();
+    println!("{}", rl_info);
 
-    let mut resp: Response = Response::new();
-
-    resp.set_status(200);
-    resp.set_content_type(mime::APPLICATION_JSON);
-    resp.set_body(resp_body);
-
-    Ok(resp)
+    match is_blocked {
+        true => {
+            let my_data = json!({"msg":"You have sent too many requests recently. Try again later."});
+            return Ok(Response::from_status(StatusCode::TOO_MANY_REQUESTS)
+                .with_body_json(&my_data).unwrap())
+        }
+        _ => {
+            let mut resp: Response = Response::new();
+            resp.set_status(200);
+            resp.set_content_type(mime::APPLICATION_JSON);
+            resp.set_body(rl_info);
+        
+            return Ok(resp)
+        }
+    }
 }
