@@ -9,6 +9,7 @@ hibp-passwords-api/target/.rustc_info.json
 */*/.cargo/config
 */*/rust-toolchain.toml
 */*/.gitignore
+*/fastly.toml
 *.backup
 *.tfstate
 */.terraform

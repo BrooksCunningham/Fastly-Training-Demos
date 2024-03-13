@@ -1,4 +1,5 @@
-use std::time::Duration;
+use std::time::{SystemTime, Duration};
+use std::fmt;
 use serde_json::{self, json};
 
 use fastly::{
@@ -7,6 +8,8 @@ use fastly::{
 
 #[fastly::main]
 fn main(req: Request) -> Result<Response, Error> {
+    let now = SystemTime::now();
+
     // Open the rate counter and penalty box.
     let rc = RateCounter::open("rc_1");
     let pb = Penaltybox::open("pb_1");
@@ -15,7 +18,6 @@ fn main(req: Request) -> Result<Response, Error> {
     let limiter = ERL::open(rc, pb);
     
     let erl_entry = req.get_url_str();
-    
 
     // Check if the request should be blocked and update the rate counter.
     let result = limiter.check_rate(
@@ -25,6 +27,10 @@ fn main(req: Request) -> Result<Response, Error> {
         10, // The maximum calculated requests per second allowed within the rate window.
         Duration::from_secs(15 * 60), // The duration to block the client if the rate limit is exceeded.
     );
+
+    // do rate limiting things
+    let erl_time_1 = format!("{:?}", now.elapsed());
+    // println!("the ERL took the whole: {:#?}", now.elapsed());
 
     let is_blocked: bool = match result {
         Ok(is_blocked) => is_blocked,
@@ -41,7 +47,9 @@ fn main(req: Request) -> Result<Response, Error> {
     let rc_1_lookup_count: u32 = rc_1_primitive.lookup_count(erl_entry, fastly::erl::CounterDuration::SixtySecs)?;
     let pb_1_lookup: bool = pb_1_primitive.has(erl_entry)?;
 
-    let rl_info: String = json!({"rc_1_lookup_count":rc_1_lookup_count, "pb_1_lookup": pb_1_lookup, "is_blocked": is_blocked}).to_string();
+    let erl_time_2 = format!("{:?}", now.elapsed());
+
+    let rl_info: String = json!({"rc_1_lookup_count":rc_1_lookup_count, "pb_1_lookup": pb_1_lookup, "is_blocked": is_blocked, "erl_time_1":erl_time_1, "erl_time_2":erl_time_2}).to_string();
     println!("{}", rl_info);
 
     match is_blocked {
