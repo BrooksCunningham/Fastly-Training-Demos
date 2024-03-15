@@ -1,5 +1,5 @@
   
-if (req.restarts < 1 && req.backend == F_compute_client_id_check_origin) {  
+if (req.restarts == 0 && fastly.ff.visits_this_service == 0) {  
     if (resp.status == 200) {
       set req.http.client-id-lookup = "abusive";
     } else {

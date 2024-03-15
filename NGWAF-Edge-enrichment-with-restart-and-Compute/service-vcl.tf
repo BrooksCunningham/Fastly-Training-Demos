@@ -48,9 +48,23 @@ resource "fastly_service_vcl" "frontend-vcl-service" {
   }
 
   snippet {
-    name     = "check client id - recv"
-    content  = file("${path.module}/vcl/check-identifier-and-restart_recv.vcl")
-    type     = "recv"
+    name     = "check client id - init"
+    content  = file("${path.module}/vcl/check-identifier-and-restart_init.vcl")
+    type     = "init"
+    priority = 100
+  }
+
+  snippet {
+    name     = "check client id - miss"
+    content  = file("${path.module}/vcl/check-identifier-and-restart_miss-pass.vcl")
+    type     = "miss"
+    priority = 100
+  }
+
+  snippet {
+    name     = "check client id - pass"
+    content  = file("${path.module}/vcl/check-identifier-and-restart_miss-pass.vcl")
+    type     = "pass"
     priority = 100
   }
 
@@ -61,7 +75,7 @@ resource "fastly_service_vcl" "frontend-vcl-service" {
     priority = 100
   }
 
-    #### NGWAF Dynamic Snippets - MANAGED BY FASTLY - Start
+  #### NGWAF Dynamic Snippets - MANAGED BY FASTLY - Start
   dynamicsnippet {
     name     = "ngwaf_config_init"
     type     = "init"

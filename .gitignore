@@ -8,6 +8,9 @@ hibp-passwords-api/target/.rustc_info.json
 */Cargo.lock
 */*/.cargo/config
 */*/rust-toolchain.toml
+*/*/package-lock.json
+
+
 */*/.gitignore
 */fastly.toml
 *.backup
