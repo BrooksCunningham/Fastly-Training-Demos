@@ -6,10 +6,10 @@ data "fastly_package_hash" "example" {
 } 
 
 resource "fastly_service_compute" "package" {
-  name = "Compute Service - ${var.USER_COMPUTE_SERVICE_DOMAIN_NAME}"
+  name = "Compute Service - ${var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME}"
 
   domain {
-    name    = var.USER_COMPUTE_SERVICE_DOMAIN_NAME
+    name    = var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME
     comment = "Service compute@edge"
   }
 
@@ -19,13 +19,13 @@ resource "fastly_service_compute" "package" {
   }
 
   backend {
-    address = var.USER_COMPUTE_SERVICE_BACKEND_HOSTNAME
+    address = var.SERVICE_COMPUTE_BACKEND_HOSTNAME
     name = "httpme_origin"
     port    = 443
     use_ssl = true
-    ssl_cert_hostname = var.USER_COMPUTE_SERVICE_BACKEND_HOSTNAME
-    ssl_sni_hostname = var.USER_COMPUTE_SERVICE_BACKEND_HOSTNAME
-    override_host = var.USER_COMPUTE_SERVICE_BACKEND_HOSTNAME
+    ssl_cert_hostname = var.SERVICE_COMPUTE_BACKEND_HOSTNAME
+    ssl_sni_hostname = var.SERVICE_COMPUTE_BACKEND_HOSTNAME
+    override_host = var.SERVICE_COMPUTE_BACKEND_HOSTNAME
   }
 
   force_destroy = true

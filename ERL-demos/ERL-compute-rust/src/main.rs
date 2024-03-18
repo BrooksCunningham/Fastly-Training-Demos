@@ -24,13 +24,11 @@ fn main(req: Request) -> Result<Response, Error> {
         erl_entry, // The client to rate limit.
         1,                            // The number of requests this execution counts as.
         RateWindow::OneSec,        // The time window to count requests within.
-        10, // The maximum calculated requests per second allowed within the rate window.
+        10, // The maximum average calculated requests per second allowed within the rate window.
         Duration::from_secs(15 * 60), // The duration to block the client if the rate limit is exceeded.
     );
 
-    // do rate limiting things
     let erl_time_1 = format!("{:?}", now.elapsed());
-    // println!("the ERL took the whole: {:#?}", now.elapsed());
 
     let is_blocked: bool = match result {
         Ok(is_blocked) => is_blocked,

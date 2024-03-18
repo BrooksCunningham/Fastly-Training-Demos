@@ -5,18 +5,32 @@ variable "FASTLY_API_KEY" {
 }
 
 #### VCL Service variables - Start
-variable "USER_VCL_SERVICE_DOMAIN_NAME" {
+variable "SERVICE_VCL_FRONTEND_DOMAIN_NAME" {
   type = string
   description = "Frontend domain for your service."
 }
 
-variable "USER_VCL_SERVICE_BACKEND_HOSTNAME" {
+variable "SERVICE_VCL_BACKEND_HOSTNAME" {
   type          = string
   description   = "hostname used for backend."
   default       = "http-me.edgecompute.app"
 }
 
 #### VCL Service variables - End
+
+#### Compute Service variables - Start
+variable "SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME" {
+  type = string
+  description = "Frontend domain for your service."
+}
+
+variable "SERVICE_COMPUTE_BACKEND_HOSTNAME" {
+  type          = string
+  description   = "hostname used for backend."
+  default       = "http-me.edgecompute.app"
+}
+
+#### Compute Service variables - End
 
 
 #### External Logging - Start

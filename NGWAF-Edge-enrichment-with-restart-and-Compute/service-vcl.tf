@@ -183,11 +183,11 @@ output "live_laugh_love_ngwaf" {
   #### Click the URL to go to the Fastly VCL service ####
   https://cfg.fastly.com/${fastly_service_vcl.frontend-vcl-service.id}
   
-  #### Send request with curl. ####
-  curl -i "https://${var.SERVICE_VCL_FRONTEND_DOMAIN_NAME}/anything/whydopirates?likeurls=theargs" -d foo=bar -H "endpoint:status=200"
+  #### Send request with curl for client-id-lookup: abusive. ####
+  curl -i "https://${var.SERVICE_VCL_FRONTEND_DOMAIN_NAME}/anything/whydopirates?likeurls=theargs" -d foo=bar -H "endpoint:status=200" | egrep 'HTTP/1.1|client-id-lookup'
 
-  #### Send request with curl. ####
-  curl -i "https://${var.SERVICE_VCL_FRONTEND_DOMAIN_NAME}/anything/whydopirates?likeurls=theargs" -d foo=bar -H "endpoint:status=404"
+  #### Send request with curl for client-id-lookup: not found. ####
+  curl -i "https://${var.SERVICE_VCL_FRONTEND_DOMAIN_NAME}/anything/whydopirates?likeurls=theargs" -d foo=bar -H "endpoint:status=404" | egrep 'HTTP/1.1|client-id-lookup'
 
   #### Troubleshoot the logging configuration if necessary. ####
   https://docs.fastly.com/en/guides/setting-up-remote-log-streaming#troubleshooting-common-logging-errors
