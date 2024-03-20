@@ -22,9 +22,16 @@ resource "fastly_service_vcl" "frontend-vcl-service" {
   }
 
   #### Only disable caching for testing. Do not disable caching for production traffic.
+  # snippet {
+  #   name     = "Disable caching"
+  #   content  = file("${path.module}/vcl/disable_caching.vcl")
+  #   type     = "recv"
+  #   priority = 100
+  # }
+
   snippet {
-    name     = "Disable caching"
-    content  = file("${path.module}/vcl/disable_caching.vcl")
+    name     = "set request header"
+    content  = "set req.http.hello-vadim = \"world\";"
     type     = "recv"
     priority = 100
   }
@@ -140,10 +147,10 @@ provider "sigsci" {
   fastly_api_key = var.FASTLY_API_KEY
 }
 
-resource "sigsci_edge_deployment" "ngwaf_edge_site_service" {
-  # https://registry.terraform.io/providers/signalsciences/sigsci/latest/docs/resources/edge_deployment
-  site_short_name = var.NGWAF_SITE
-}
+# resource "sigsci_edge_deployment" "ngwaf_edge_site_service" {
+#   # https://registry.terraform.io/providers/signalsciences/sigsci/latest/docs/resources/edge_deployment
+#   site_short_name = var.NGWAF_SITE
+# }
 
 resource "sigsci_edge_deployment_service" "ngwaf_edge_service_link" {
   # https://registry.terraform.io/providers/signalsciences/sigsci/latest/docs/resources/edge_deployment_service
@@ -154,7 +161,6 @@ resource "sigsci_edge_deployment_service" "ngwaf_edge_service_link" {
   percent_enabled  = 100
 
   depends_on = [
-    sigsci_edge_deployment.ngwaf_edge_site_service,
     fastly_service_vcl.frontend-vcl-service,
     fastly_service_dictionary_items.edge_security_dictionary_items,
     fastly_service_dynamic_snippet_content.ngwaf_config_init,
