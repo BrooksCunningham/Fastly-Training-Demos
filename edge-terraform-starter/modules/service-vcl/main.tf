@@ -22,18 +22,11 @@ resource "fastly_service_vcl" "frontend-vcl-service" {
   }
 
   #### Only disable caching for testing. Do not disable caching for production traffic.
-  # snippet {
-  #   name     = "Disable caching"
-  #   content  = file("${path.module}/vcl/disable_caching.vcl")
-  #   type     = "recv"
-  #   priority = 100
-  # }
-
   snippet {
-    name     = "set request header"
-    content  = "set req.http.hello-vadim = \"world\";"
-    type     = "recv"
-    priority = 100
+     name     = "Disable caching"
+     content  = file("${path.module}/vcl/disable_caching.vcl")
+     type     = "recv"
+     priority = 1000
   }
 
   snippet {
