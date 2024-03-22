@@ -9,7 +9,7 @@ hibp-passwords-api/target/.rustc_info.json
 */*/.cargo/config
 */*/rust-toolchain.toml
 */*/package-lock.json
-
+*/*/*.tar.gz
 
 */*/.gitignore
 */fastly.toml
@@ -38,3 +38,4 @@ NGWAF-Deployment-Examples/ngwaf-CloudWAF/terraform.tfvars
 openapi-documentor/apiclarity/values.yaml
 mtls/cert.pem
 mtls/key.pem
+

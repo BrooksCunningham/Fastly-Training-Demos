@@ -1,11 +1,69 @@
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	// The require scope
+/******/ 	var __webpack_require__ = {};
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+;// CONCATENATED MODULE: external "fastly:env"
+const external_fastly_env_namespaceObject = require("fastly:env");
+;// CONCATENATED MODULE: external "fastly:kv-store"
+const external_fastly_kv_store_namespaceObject = require("fastly:kv-store");
+;// CONCATENATED MODULE: ./src/shared.js
+/// <reference types="@fastly/js-compute" />
+
+// Shared code I don't want cluttering up main
+
+
+
+// Wrap some error handling and logging around the default methods.
+async function kv_get(kv_store, KEY, DEBUG) {
+    let kv_key = null;
+    
+    let start = performance.now();
+    try {
+      kv_key = await kv_store.get(KEY);
+    } catch (error) {
+      console.log("kv_get.get:",error);
+      return null;
+    }
+  
+    if(kv_key === null) {
+      console.log("kv_get: key not found:", KEY);
+      return null;
+    } 
+
+    // Fulfill any pending promise before returning, so we can have meaningful timings.
+    let kv_body = await kv_key.json();
+    DEBUG ? console.log("KV Key Fetch in",performance.now()-start,"ms :",KEY):null;
+
+    return kv_body;
+}
+
+;// CONCATENATED MODULE: ./src/index.js
 //! Default Compute template program.
 
 /// <reference types="@fastly/js-compute" />
 // import { CacheOverride } from "fastly:cache-override";
 // import { Logger } from "fastly:logger";
-import { env } from "fastly:env";
-import { KVStore } from "fastly:kv-store";
-import { kv_get } from "./shared";
+
+
+
 
 
 
@@ -30,8 +88,8 @@ async function handleRequest(event) {
   // Get the client request.
   let req = event.request;
   let url = new URL(req.url);
-  let VERSION = env("FASTLY_SERVICE_VERSION");
-  let HOST = env("FASTLY_HOSTNAME");
+  let VERSION = (0,external_fastly_env_namespaceObject.env)("FASTLY_SERVICE_VERSION");
+  let HOST = (0,external_fastly_env_namespaceObject.env)("FASTLY_HOSTNAME");
   let LOCAL = 0;
   let DEBUG = 0;
   let event_client_ip = event.client.address;
@@ -69,7 +127,7 @@ async function handleRequest(event) {
 
   // Open the KV store  
   try {
-    ip_list = new KVStore('ip_blocklist');
+    ip_list = new external_fastly_kv_store_namespaceObject.KVStore('ip_blocklist');
   } catch(error) {
     console.log("Unable to open blocklist KV:",error);
   }
@@ -150,3 +208,9 @@ async function handleRequest(event) {
     headers: new Headers({ "Content-Type": "text/html; charset=utf-8" }),
   });
 }
+
+var __webpack_export_target__ = this;
+for(var i in __webpack_exports__) __webpack_export_target__[i] = __webpack_exports__[i];
+if(__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, "__esModule", { value: true });
+/******/ })()
+;

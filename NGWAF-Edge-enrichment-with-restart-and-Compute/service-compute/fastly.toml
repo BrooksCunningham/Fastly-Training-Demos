@@ -1,13 +1,23 @@
 # This file describes a Fastly Compute package. To learn more visit:
-# https://developer.fastly.com/reference/fastly-toml/
+# https://www.fastly.com/documentation/reference/compute/fastly-toml
 
-authors = ["brookscunningham@gmail.com"]
-cloned_from = "https://github.com/fastly/compute-starter-kit-javascript-empty"
+authors = ["bnorvell@fastly.com"]
+cloned_from = "https://github.com/fastly/compute-starter-kit-javascript-default"
 description = ""
 language = "javascript"
 manifest_version = 3
 name = "service-compute"
 service_id = ""
+
+[local_server]
+
+  [local_server.backends]
+
+  [local_server.kv_stores]
+
+    [[local_server.kv_stores.ip_blocklist]]
+      file = "127.0.0.1.json"
+      key = "127.0.0.1"
 
 [scripts]
   build = "npm run build"
