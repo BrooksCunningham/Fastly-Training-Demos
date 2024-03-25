@@ -23,13 +23,13 @@ resource "fastly_service_vcl" "frontend-vcl-service" {
   }
 
   backend {
-    address = "http-me.edgecompute.app"
+    address = var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME
     name = "compute_client_id_check_origin"
     port    = 443
     use_ssl = true
-    ssl_cert_hostname = "http-me.edgecompute.app"
-    ssl_sni_hostname = "http-me.edgecompute.app"
-    override_host = "http-me.edgecompute.app"
+    ssl_cert_hostname = var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME
+    ssl_sni_hostname = var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME
+    override_host = var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME
     request_condition = "backend always false"
   }
 

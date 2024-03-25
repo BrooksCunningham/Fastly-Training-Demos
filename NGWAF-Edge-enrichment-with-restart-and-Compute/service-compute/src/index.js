@@ -82,7 +82,7 @@ async function handleRequest(event) {
   if(ip_entry && ip_entry["expires"] >= now) {
     DEBUG ? console.log("Entry present and not expired, blocking:", client_ip, now, ip_entry["expires"]):null;
     return new Response("Ok", {
-      status: 404,
+      status: 200,
       headers: new Headers({ "Content-Type": "text/html; charset=utf-8" }),
     });
   } else {
@@ -144,9 +144,9 @@ async function handleRequest(event) {
     // For future expansion/addition of functionality.
   }
 
-  // Catch all other requests and return a 200 if we haven't been blocked.
+  // Catch all other requests and return a 404 if we haven't been blocked.
   return new Response("Ok", {
-    status: 200,
+    status: 404,
     headers: new Headers({ "Content-Type": "text/html; charset=utf-8" }),
   });
 }
