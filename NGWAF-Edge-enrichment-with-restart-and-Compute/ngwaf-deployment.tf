@@ -9,13 +9,13 @@ provider "sigsci" {
 resource "sigsci_edge_deployment_service" "ngwaf_edge_service_link" {
   # https://registry.terraform.io/providers/signalsciences/sigsci/latest/docs/resources/edge_deployment_service
   site_short_name = var.NGWAF_SITE
-  fastly_sid      = fastly_service_vcl.frontend-vcl-service.id
+  fastly_sid      = fastly_service_vcl.frontend_vcl_service.id
 
   activate_version = true
   percent_enabled  = 100
 
   depends_on = [
-    fastly_service_vcl.frontend-vcl-service,
+    fastly_service_vcl.frontend_vcl_service,
     fastly_service_dictionary_items.edge_security_dictionary_items,
     fastly_service_dynamic_snippet_content.ngwaf_config_init,
     fastly_service_dynamic_snippet_content.ngwaf_config_miss,
@@ -25,7 +25,6 @@ resource "sigsci_edge_deployment_service" "ngwaf_edge_service_link" {
 }
 
 output "ngwaf-deployment-output" {
-
     value = <<tfmultiline
   
     #### Click the URL to go to the Fastly NGWAF service ####

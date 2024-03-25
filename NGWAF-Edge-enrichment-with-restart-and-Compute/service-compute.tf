@@ -5,7 +5,7 @@
 resource "null_resource" "build_package" {
   triggers = {
     package_name = "${path.module}/service-compute/pkg/package.tar.gz"
-    always_run = "${timestamp()}"
+    always_run   = "${timestamp()}"
   }
 
   # https://www.terraform.io/docs/language/resources/provisioners/local-exec.html
@@ -22,12 +22,12 @@ data "local_file" "package_name" {
 }
 
 data "fastly_package_hash" "compute_package_hash" {
-  filename   = null_resource.build_package.triggers.package_name
+  filename = null_resource.build_package.triggers.package_name
   # depends_on = [null_resource.build_package]
 }
 
-resource "fastly_service_compute" "package" {
-  name = "Compute Service Client ID Check - ${var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME}"
+resource "fastly_service_compute" "compute_service" {
+  name = var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME
 
   domain {
     name    = var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME
@@ -44,22 +44,22 @@ resource "fastly_service_compute" "package" {
     resource_id = fastly_kvstore.ip_blocklist_store.id
   }
 
-
   force_destroy = true
 
-  depends_on = [ null_resource.build_package ]
+  depends_on = [null_resource.build_package]
 }
 
 #### Fastly Compute@Edge Service - End
 
 resource "fastly_kvstore" "ip_blocklist_store" {
-  name = "ip_blocklist_store"
+  name          = "ip_blocklist_store"
+  force_destroy = true
 }
 
 output "compute-service-output" {
   value = <<tfmultiline
   #### Click the URL to go to the Fastly Compute service ####
-  https://cfg.fastly.com/${fastly_service_compute.package.id}
+  https://cfg.fastly.com/${fastly_service_compute.compute_service.id}
 
   #### Test
   curl https://${var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME}/get -H fastly-debug:10145-bdn -d foo
@@ -68,7 +68,7 @@ output "compute-service-output" {
   curl --data @./service-compute/payload.json "https://${var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME}/add"
 
   #### tail logs
-  fastly log-tail -s ${fastly_service_compute.package.id}
+  fastly log-tail -s ${fastly_service_compute.compute_service.id}
 
   tfmultiline
 }

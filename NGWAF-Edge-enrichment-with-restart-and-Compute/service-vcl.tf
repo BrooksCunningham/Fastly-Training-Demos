@@ -4,7 +4,7 @@ provider "fastly" {
 }
 
 #### Fastly VCL Service - Start
-resource "fastly_service_vcl" "frontend-vcl-service" {
+resource "fastly_service_vcl" "frontend_vcl_service" {
   name = "Frontend VCL Service - NGWAF edge deploy ${var.SERVICE_VCL_FRONTEND_DOMAIN_NAME}"
 
   domain {
@@ -23,13 +23,13 @@ resource "fastly_service_vcl" "frontend-vcl-service" {
   }
 
   backend {
-    address = var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME
+    address = fastly_service_compute.compute_service.name
     name = "compute_client_id_check_origin"
     port    = 443
     use_ssl = true
-    ssl_cert_hostname = var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME
-    ssl_sni_hostname = var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME
-    override_host = var.SERVICE_COMPUTE_FRONTEND_DOMAIN_NAME
+    ssl_cert_hostname = fastly_service_compute.compute_service.name
+    ssl_sni_hostname = fastly_service_compute.compute_service.name
+    override_host = fastly_service_compute.compute_service.name
     request_condition = "backend always false"
   }
 
@@ -114,9 +114,9 @@ resource "fastly_service_vcl" "frontend-vcl-service" {
 
 resource "fastly_service_dictionary_items" "edge_security_dictionary_items" {
   for_each = {
-    for d in fastly_service_vcl.frontend-vcl-service.dictionary : d.name => d if d.name == "Edge_Security"
+    for d in fastly_service_vcl.frontend_vcl_service.dictionary : d.name => d if d.name == "Edge_Security"
   }
-  service_id    = fastly_service_vcl.frontend-vcl-service.id
+  service_id    = fastly_service_vcl.frontend_vcl_service.id
   dictionary_id = each.value.dictionary_id
   items = {
     Enabled : "100"
@@ -125,10 +125,10 @@ resource "fastly_service_dictionary_items" "edge_security_dictionary_items" {
 
 resource "fastly_service_dynamic_snippet_content" "ngwaf_config_init" {
   for_each = {
-    for d in fastly_service_vcl.frontend-vcl-service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_init"
+    for d in fastly_service_vcl.frontend_vcl_service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_init"
   }
 
-  service_id = fastly_service_vcl.frontend-vcl-service.id
+  service_id = fastly_service_vcl.frontend_vcl_service.id
   snippet_id = each.value.snippet_id
 
   content = "### Fastly managed ngwaf_config_init"
@@ -138,10 +138,10 @@ resource "fastly_service_dynamic_snippet_content" "ngwaf_config_init" {
 
 resource "fastly_service_dynamic_snippet_content" "ngwaf_config_miss" {
   for_each = {
-    for d in fastly_service_vcl.frontend-vcl-service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_miss"
+    for d in fastly_service_vcl.frontend_vcl_service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_miss"
   }
 
-  service_id = fastly_service_vcl.frontend-vcl-service.id
+  service_id = fastly_service_vcl.frontend_vcl_service.id
   snippet_id = each.value.snippet_id
 
   content = "### Fastly managed ngwaf_config_miss"
@@ -151,10 +151,10 @@ resource "fastly_service_dynamic_snippet_content" "ngwaf_config_miss" {
 
 resource "fastly_service_dynamic_snippet_content" "ngwaf_config_pass" {
   for_each = {
-    for d in fastly_service_vcl.frontend-vcl-service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_pass"
+    for d in fastly_service_vcl.frontend_vcl_service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_pass"
   }
 
-  service_id = fastly_service_vcl.frontend-vcl-service.id
+  service_id = fastly_service_vcl.frontend_vcl_service.id
   snippet_id = each.value.snippet_id
 
   content = "### Fastly managed ngwaf_config_pass"
@@ -164,10 +164,10 @@ resource "fastly_service_dynamic_snippet_content" "ngwaf_config_pass" {
 
 resource "fastly_service_dynamic_snippet_content" "ngwaf_config_deliver" {
   for_each = {
-    for d in fastly_service_vcl.frontend-vcl-service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_deliver"
+    for d in fastly_service_vcl.frontend_vcl_service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_deliver"
   }
 
-  service_id = fastly_service_vcl.frontend-vcl-service.id
+  service_id = fastly_service_vcl.frontend_vcl_service.id
   snippet_id = each.value.snippet_id
 
   content = "### Fastly managed ngwaf_config_deliver"
@@ -181,17 +181,17 @@ output "live_laugh_love_ngwaf" {
   value = <<tfmultiline
   
   #### Click the URL to go to the Fastly VCL service ####
-  https://cfg.fastly.com/${fastly_service_vcl.frontend-vcl-service.id}
+  https://cfg.fastly.com/${fastly_service_vcl.frontend_vcl_service.id}
   
   #### Send request with curl for client-id-lookup: abusive. ####
-  curl -i "https://${var.SERVICE_VCL_FRONTEND_DOMAIN_NAME}/anything/whydopirates?likeurls=theargs" -d foo=bar -H "endpoint:status=200" | egrep 'HTTP/1.1|client-id-lookup'
+  curl -s "https://${var.SERVICE_VCL_FRONTEND_DOMAIN_NAME}/anything/whydopirates?likeurls=theargs" -d foo=bar | jq
 
   #### Send request with curl for client-id-lookup: not found. ####
-  curl -i "https://${var.SERVICE_VCL_FRONTEND_DOMAIN_NAME}/anything/whydopirates?likeurls=theargs" -d foo=bar -H "endpoint:status=404" | egrep 'HTTP/1.1|client-id-lookup'
+  curl -s "https://${var.SERVICE_VCL_FRONTEND_DOMAIN_NAME}/anything/whydopirates?likeurls=theargs" -d foo=bar | jq
 
   #### Troubleshoot the logging configuration if necessary. ####
   https://docs.fastly.com/en/guides/setting-up-remote-log-streaming#troubleshooting-common-logging-errors
-  curl https://api.fastly.com/service/${fastly_service_vcl.frontend-vcl-service.id}/logging_status -H fastly-key:$FASTLY_API_KEY
+  curl https://api.fastly.com/service/${fastly_service_vcl.frontend_vcl_service.id}/logging_status -H fastly-key:$FASTLY_API_KEY
   
   tfmultiline
 

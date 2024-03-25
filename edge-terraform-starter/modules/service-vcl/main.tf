@@ -4,7 +4,7 @@ provider "fastly" {
 }
 
 #### Fastly VCL Service - Start
-resource "fastly_service_vcl" "frontend-vcl-service" {
+resource "fastly_service_vcl" "frontend_vcl_service" {
   name = "Frontend VCL Service - edge deploy ${var.SERVICE_VCL_FRONTEND_DOMAIN_NAME}"
 
   domain {
@@ -68,9 +68,9 @@ resource "fastly_service_vcl" "frontend-vcl-service" {
 
 resource "fastly_service_dictionary_items" "edge_security_dictionary_items" {
   for_each = {
-    for d in fastly_service_vcl.frontend-vcl-service.dictionary : d.name => d if d.name == "Edge_Security"
+    for d in fastly_service_vcl.frontend_vcl_service.dictionary : d.name => d if d.name == "Edge_Security"
   }
-  service_id    = fastly_service_vcl.frontend-vcl-service.id
+  service_id    = fastly_service_vcl.frontend_vcl_service.id
   dictionary_id = each.value.dictionary_id
   items = {
     Enabled : "100"
@@ -79,10 +79,10 @@ resource "fastly_service_dictionary_items" "edge_security_dictionary_items" {
 
 resource "fastly_service_dynamic_snippet_content" "ngwaf_config_init" {
   for_each = {
-    for d in fastly_service_vcl.frontend-vcl-service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_init"
+    for d in fastly_service_vcl.frontend_vcl_service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_init"
   }
 
-  service_id = fastly_service_vcl.frontend-vcl-service.id
+  service_id = fastly_service_vcl.frontend_vcl_service.id
   snippet_id = each.value.snippet_id
 
   content = "### Fastly managed ngwaf_config_init"
@@ -92,10 +92,10 @@ resource "fastly_service_dynamic_snippet_content" "ngwaf_config_init" {
 
 resource "fastly_service_dynamic_snippet_content" "ngwaf_config_miss" {
   for_each = {
-    for d in fastly_service_vcl.frontend-vcl-service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_miss"
+    for d in fastly_service_vcl.frontend_vcl_service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_miss"
   }
 
-  service_id = fastly_service_vcl.frontend-vcl-service.id
+  service_id = fastly_service_vcl.frontend_vcl_service.id
   snippet_id = each.value.snippet_id
 
   content = "### Fastly managed ngwaf_config_miss"
@@ -105,10 +105,10 @@ resource "fastly_service_dynamic_snippet_content" "ngwaf_config_miss" {
 
 resource "fastly_service_dynamic_snippet_content" "ngwaf_config_pass" {
   for_each = {
-    for d in fastly_service_vcl.frontend-vcl-service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_pass"
+    for d in fastly_service_vcl.frontend_vcl_service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_pass"
   }
 
-  service_id = fastly_service_vcl.frontend-vcl-service.id
+  service_id = fastly_service_vcl.frontend_vcl_service.id
   snippet_id = each.value.snippet_id
 
   content = "### Fastly managed ngwaf_config_pass"
@@ -118,10 +118,10 @@ resource "fastly_service_dynamic_snippet_content" "ngwaf_config_pass" {
 
 resource "fastly_service_dynamic_snippet_content" "ngwaf_config_deliver" {
   for_each = {
-    for d in fastly_service_vcl.frontend-vcl-service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_deliver"
+    for d in fastly_service_vcl.frontend_vcl_service.dynamicsnippet : d.name => d if d.name == "ngwaf_config_deliver"
   }
 
-  service_id = fastly_service_vcl.frontend-vcl-service.id
+  service_id = fastly_service_vcl.frontend_vcl_service.id
   snippet_id = each.value.snippet_id
 
   content = "### Fastly managed ngwaf_config_deliver"
@@ -148,13 +148,13 @@ provider "sigsci" {
 resource "sigsci_edge_deployment_service" "ngwaf_edge_service_link" {
   # https://registry.terraform.io/providers/signalsciences/sigsci/latest/docs/resources/edge_deployment_service
   site_short_name = var.NGWAF_SITE
-  fastly_sid      = fastly_service_vcl.frontend-vcl-service.id
+  fastly_sid      = fastly_service_vcl.frontend_vcl_service.id
 
   activate_version = true
   percent_enabled  = 100
 
   depends_on = [
-    fastly_service_vcl.frontend-vcl-service,
+    fastly_service_vcl.frontend_vcl_service,
     fastly_service_dictionary_items.edge_security_dictionary_items,
     fastly_service_dynamic_snippet_content.ngwaf_config_init,
     fastly_service_dynamic_snippet_content.ngwaf_config_miss,
@@ -169,7 +169,7 @@ output "vcl_service_output" {
   value = <<tfmultiline
   
   #### Click the URL to go to the Fastly VCL service ####
-  https://cfg.fastly.com/${fastly_service_vcl.frontend-vcl-service.id}
+  https://cfg.fastly.com/${fastly_service_vcl.frontend_vcl_service.id}
   
   #### Send a test request with curl. ####
   curl -i "https://${var.SERVICE_VCL_FRONTEND_DOMAIN_NAME}/anything/whydopirates?likeurls=theargs" -d foo=bar
@@ -179,7 +179,7 @@ output "vcl_service_output" {
 
   #### Troubleshoot the logging configuration if necessary. ####
   https://docs.fastly.com/en/guides/setting-up-remote-log-streaming#troubleshooting-common-logging-errors
-  curl https://api.fastly.com/service/${fastly_service_vcl.frontend-vcl-service.id}/logging_status -H fastly-key:$FASTLY_API_KEY
+  curl https://api.fastly.com/service/${fastly_service_vcl.frontend_vcl_service.id}/logging_status -H fastly-key:$FASTLY_API_KEY
   
   tfmultiline
 
