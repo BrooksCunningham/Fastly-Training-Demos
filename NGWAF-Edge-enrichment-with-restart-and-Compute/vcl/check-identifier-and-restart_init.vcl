@@ -16,11 +16,8 @@ sub client_id_check {
 
         # Set the x-client-id-check header so that this may be used in vcl_deliver.
         set req.http.x-client-id-check = "true";
-        set req.backend = F_compute_client_id_check_origin;
-
         # Need to set the request to a GET to preserve the POST body
-        # set req.method = req.http.Orig-Method;
-        # set req.method = "GET";
         set bereq.method = "GET";
+        set req.backend = F_compute_client_id_check_origin;
     }
 }
