@@ -10,6 +10,7 @@ hibp-passwords-api/target/.rustc_info.json
 */*/rust-toolchain.toml
 */*/package-lock.json
 */*/*.tar.gz
+*/*/*/*.tag.gz
 
 */*/.gitignore
 */fastly.toml
@@ -39,3 +40,4 @@ openapi-documentor/apiclarity/values.yaml
 mtls/cert.pem
 mtls/key.pem
 
+NGWAF-Edge-enrichment-with-restart-and-Compute/service-compute/pkg/package.tar.gz
