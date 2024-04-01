@@ -4,6 +4,47 @@ Following pragmas must be set to true. Open a Support ticket for these to be set
 * fix_unsent_body_drain
 * no_body_if_bereq_is_get_or_head
 
+# Workflow with abusive client
+```mermaid
+sequenceDiagram
+    Actor Client
+    box Red Fastly Infrastructure
+        participant VCL
+        participant Compute
+        participant NGWAF
+    end
+    participant Origin
+    
+    
+    Client->>VCL: POST /credit-card-submit
+
+    activate Compute
+    VCL->>Compute: GET /credit-card-submit
+    Compute->>VCL: 200 OK (abusive client result)
+    Note right of VCL: restart
+    deactivate Compute
+
+    VCL->>NGWAF: POST /credit-card-submit
+    NGWAF->>Client: 406 Block
+```
+
+# Workflow from webhook
+```mermaid
+sequenceDiagram
+    Actor SIEM
+    box Red Fastly Infrastructure
+        participant Compute
+        participant KV as KV Store
+    end    
+
+    Note left of SIEM: abusive client identified
+    SIEM->>Compute: POST /add
+    Compute->>KV: Add entry to KV
+
+```
+
+# Tests
+
 ## Test by sending a request like the following - Should be allowed
 
 It is advisable to test from a glitch terminal or similar cloud environment. Make note of the public IP used by the client.
