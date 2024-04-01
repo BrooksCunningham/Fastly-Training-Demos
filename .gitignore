@@ -41,3 +41,5 @@ mtls/cert.pem
 mtls/key.pem
 
 NGWAF-Edge-enrichment-with-restart-and-Compute/service-compute/pkg/package.tar.gz
+NGWAF-Deployment-Examples/NGWAF-Edge-enrichment-with-restart-and-Compute/service-compute/package-lock.json
+*.gz

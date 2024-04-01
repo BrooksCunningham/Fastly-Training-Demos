@@ -50,7 +50,7 @@ spec:
               name: ngwaf-agent-keys
               key: secretaccesskey
         - name: SIGSCI_REVPROXY_LISTENER
-          value: "listen_conf:{listener=http://0.0.0.0:8080,upstreams=https://http-me.glitch.me:443,access-log='/dev/stdout',pass-host-header=false}"
+          value: "listen_conf:{listener=http://0.0.0.0:8080,upstreams=https://http-me.edgecompute.app:443,access-log='/dev/stdout',pass-host-header=false}"
         - name: SIGSCI_DEBUG_LOG_BLOCKED_REQUESTS
           value: "1"
         - name: SIGSCI_DEBUG_LOG_WEB_INPUTS
