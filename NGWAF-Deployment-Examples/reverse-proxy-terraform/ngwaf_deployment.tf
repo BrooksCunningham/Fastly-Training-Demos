@@ -2,15 +2,9 @@ provider "kubernetes" {
   config_path = "~/.kube/config"
 }
 
-resource "kubernetes_namespace" "example" {
-  metadata {
-    name = "ngwaf-rev-proxy"
-  }
-}
 resource "kubernetes_deployment" "example" {
   metadata {
     name      = "ngwaf-rev-proxy"
-    namespace = kubernetes_namespace.example.metadata.0.name
   }
   spec {
     replicas = 1
@@ -64,7 +58,6 @@ resource "kubernetes_deployment" "example" {
 resource "kubernetes_service" "example" {
   metadata {
     name      = "ngwaf-rev-proxy"
-    namespace = kubernetes_namespace.example.metadata.0.name
   }
   spec {
     selector = {
@@ -82,7 +75,6 @@ resource "kubernetes_service" "example" {
 resource "kubernetes_secret" "example" {
   metadata {
     name = "ngwaf-agent-config"
-    namespace = "ngwaf-rev-proxy"
   }
 
   data = {
