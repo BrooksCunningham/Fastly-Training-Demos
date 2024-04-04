@@ -11,3 +11,13 @@ variable "NGWAF_ACCESSKEYSECRET" {
 }
 
 #### NGWAF variables - End
+
+#### Docker variables - Start
+
+variable "DOCKER_HOST" {
+  type          = string
+  description   = "DOCKER_HOST used for docker provider"
+}
+
+#### Docker variables - End
+

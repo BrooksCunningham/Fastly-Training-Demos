@@ -24,7 +24,7 @@ resource "kubernetes_deployment" "example" {
         container {
           name              = "fastly-ngwaf-agent"
           image             = "signalsciences/sigsci-agent:latest"
-          image_pull_policy = "Never"
+          image_pull_policy = "IfNotPresent"
           port {
             container_port = 80
           }
@@ -87,12 +87,12 @@ resource "kubernetes_secret" "example" {
 output "k8s_output" {
   value = <<tfmultiline
 
-    curl `minikube ip`:${kubernetes_service.example.spec[0].port[0].node_port}
-
+    curl `minikube ip`:${kubernetes_service.example.spec[0].port[0].node_port}/anything/abc | jq
 
     #### troubleshooting
     kubectl describe deployments -n ngwaf-rev-proxy
     kubectl describe pod ngwaf-rev-proxy-7584f87b6f-4s528 -n ngwaf-rev-proxy
+    kubectl logs `kubectl get pods | awk '{print $1}' | tail -n1` -c fastly-ngwaf-agent
 
     #### cleanup
     kubectl delete secrets ngwaf-agent-config
