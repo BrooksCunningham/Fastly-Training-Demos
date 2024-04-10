@@ -18,7 +18,7 @@ If you run into issues, then you will need to look at the `kubectl` documentatio
 
 
 For example
-## Check th status of the ingress API and delete if needed.
+## Check the status of the ingress API and delete if needed.
 * kubectl get validatingwebhookconfigurations,mutatingwebhookconfigurations -o name
 * kubectl delete validatingwebhookconfigurations my-ingress-ingress-nginx-admission
 
