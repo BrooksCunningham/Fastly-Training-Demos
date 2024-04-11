@@ -1,4 +1,4 @@
-# README is a work in progress
+# Have I Been Pwned on Fastly
 
 This is a re-implementation of the (HaveIBeenPwned Pwned Password API)[https://haveibeenpwned.com/API/v3#PwnedPasswords] using Fastly Compute@Edge and Object Store.
 
