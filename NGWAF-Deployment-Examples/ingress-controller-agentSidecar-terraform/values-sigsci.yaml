@@ -2,7 +2,8 @@ controller:
     # Replaces the default nginx-controller image with a custom image that contains the Signal Sciences nginx Module
     image:
       repository: signalsciences/sigsci-nginx-ingress-controller
-      tag: "1.10.0"
+      tag: 1.10.0
+      digest: false
       pullPolicy: IfNotPresent
 
     # Load module and set sigsci_agent_host
@@ -23,9 +24,16 @@ controller:
         - name: SIGSCI_RPC_ADDRESS
           value: unix:/sigsci/tmp/sigsci.sock
         - name: SIGSCI_ACCESSKEYID
-          value: SET_ME
+          valueFrom:
+            secretKeyRef:
+              name: ngwaf-agent-config
+              key:  accesskeyid
         - name: SIGSCI_SECRETACCESSKEY
-          value: SET_ME
+          valueFrom:
+            secretKeyRef:
+              name: ngwaf-agent-config
+              key:  secretaccesskey
+              
 
     # Mounts shared volume for sigsci.sock file
     extraVolumeMounts:

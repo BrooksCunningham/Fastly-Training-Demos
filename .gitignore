@@ -43,3 +43,4 @@ mtls/key.pem
 NGWAF-Edge-enrichment-with-restart-and-Compute/service-compute/pkg/package.tar.gz
 NGWAF-Deployment-Examples/NGWAF-Edge-enrichment-with-restart-and-Compute/service-compute/package-lock.json
 *.gz
+ObjectStorePlusSIEM/compute-webhook-receiver/target/debug/deps/url-210e1e63785fc02c.d

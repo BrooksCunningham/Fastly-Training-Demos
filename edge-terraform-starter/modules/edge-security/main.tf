@@ -20,7 +20,7 @@ resource "sigsci_site" "ngwaf_workspace_site" {
 
 resource "sigsci_edge_deployment" "ngwaf_edge_site_service" {
   # https://registry.terraform.io/providers/signalsciences/sigsci/latest/docs/resources/edge_deployment
-  site_short_name = var.NGWAF_SITE
+  site_short_name = sigsci_site.ngwaf_workspace_site.short_name
 
-  depends_on = [sigsci_site.ngwaf_workspace_site]
+  # depends_on = [sigsci_site.ngwaf_workspace_site]
 }

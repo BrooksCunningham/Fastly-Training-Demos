@@ -20,13 +20,14 @@ module "edge_security" {
 
 #### Rate Limiting Enumeration Attempts - Start
 resource "sigsci_site_signal_tag" "bad-response-signal" {
-  site_short_name = var.NGWAF_SITE
+  # site_short_name = var.NGWAF_SITE
+  site_short_name = module.edge_security.sigsci_site.ngwaf_workspace_site.short_name
   name            = "bad-response"
   description     = "Identification of attacks from malicious IPs"
 }
 
 resource "sigsci_site_rule" "enumeration-attack-rule" {
-  site_short_name = var.NGWAF_SITE
+  site_short_name = module.edge_security.sigsci_site.ngwaf_workspace_site.short_name
   type            = "rateLimit"
   group_operator  = "any"
   enabled         = true
