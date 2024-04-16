@@ -28,33 +28,50 @@ provider "kubernetes" {
 
 
 # https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/
-# resource "kubernetes_namespace" "example" {
+resource "kubernetes_namespace" "example" {
+  metadata {
+    annotations = {
+      name = "example-annotation"
+    }
+
+    labels = {
+      mylabel = "label-value"
+    }
+
+    name = "ingress-nginx"
+  }
+}
+
+
+# resource "kubernetes_ingress_class_v1" "example" {
 #   metadata {
-#     annotations = {
-#       name = "example-annotation"
-#     }
+#     name = "example"
+#   }
 
-#     labels = {
-#       mylabel = "label-value"
+#   spec {
+#     # controller = "example.com/ingress-controller"
+#     controller = "k8s.io/ingress-nginx"
+#     parameters {
+#       api_group = "networking.k8s.io/v1"
+#       kind      = "IngressClass"
+#       name      = "external-lb"
 #     }
-
-#     name = "ingress-nginx"
 #   }
 # }
-
-
 
 
 resource "kubernetes_ingress_v1" "example" {
   metadata {
     name      = "example-nginx-ingress"
-    namespace = "ingress-nginx"
+    # namespace = "ingress-nginx"
+    namespace = kubernetes_namespace.example.metadata[0].name
     annotations = {
       "nginx.ingress.kubernetes.io/rewrite-target" = "/"
     }
   }
 
   spec {
+    ingress_class_name = "nginx"
     rule {
       host = "demo.localdev.me"
       http {
@@ -98,8 +115,8 @@ resource "kubernetes_ingress_v1" "example" {
 resource "kubernetes_pod" "banana_app" {
   metadata {
     name      = "banana-app"
-    namespace = "ingress-nginx"
-
+    # namespace = "ingress-nginx"
+    namespace = kubernetes_namespace.example.metadata[0].name
     labels = {
       app = "banana"
     }
@@ -117,7 +134,8 @@ resource "kubernetes_pod" "banana_app" {
 resource "kubernetes_pod" "apple_app" {
   metadata {
     name      = "apple-app"
-    namespace = "ingress-nginx"
+    # namespace = "ingress-nginx"
+    namespace = kubernetes_namespace.example.metadata[0].name
     labels = {
       app = "apple"
     }
@@ -132,11 +150,26 @@ resource "kubernetes_pod" "apple_app" {
   }
 }
 
+resource "kubernetes_secret" "example" {
+  metadata {
+    name = "ngwaf-agent-config"
+    # namespace = "ingress-nginx"
+    namespace = kubernetes_namespace.example.metadata[0].name
+  }
+
+  data = {
+    accesskeyid     = var.NGWAF_ACCESSKEYID
+    secretaccesskey = var.NGWAF_ACCESSKEYSECRET
+    # revproxylister  = "listen_conf:{listener=http://0.0.0.0:80,upstreams=https://http-me.edgecompute.app:443,access-log='/dev/stdout',pass-host-header=false}"
+  }
+}
+
 
 resource "kubernetes_service" "banana_service" {
   metadata {
     name      = "banana-service"
     namespace = "ingress-nginx"
+    # namespace = kubernetes_namespace.example.metadata[0].name
   }
 
   spec {
@@ -154,7 +187,8 @@ resource "kubernetes_service" "banana_service" {
 resource "kubernetes_service" "apple_service" {
   metadata {
     name      = "apple-service"
-    namespace = "ingress-nginx"
+    # namespace = "ingress-nginx"
+    namespace = kubernetes_namespace.example.metadata[0].name
   }
 
   spec {
@@ -167,13 +201,37 @@ resource "kubernetes_service" "apple_service" {
   }
 }
 
+# resource "kubernetes_service" "nginx_ingress_nodeport" {
+#   metadata {
+#     name      = "nginx-ingress-nodeport"
+#     # namespace = "ingress-nginx"
+#     namespace = kubernetes_namespace.example.metadata[0].name
+#   }
+#   spec {
+#     selector = {
+#       name    = "ingress-nginx"
+#       instance = "ingress-nginx"
+#     }
+#     port {
+#       name        = "http"
+#       protocol    = "TCP"
+#       port        = 80
+#       target_port = 80
+#       node_port   = 30080
+#     }
+
+#     type = "NodePort"
+#   }
+# }
+
+
 output "k8s_output" {
   value = <<tfmultiline
 
     #### troubleshooting
     kubectl describe deployments
     kubectl describe pod 
-    kubectl logs `kubectl get pods | awk '{print $1}' | tail -n1`
+    kubectl logs `kubectl get pods -n ingress-nginx | awk '{print $1}' | tail -n1` -n ingress-nginx -c sigsci-agent
 
     kubectl get validatingwebhookconfigurations,mutatingwebhookconfigurations -o name
 
