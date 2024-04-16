@@ -1,4 +1,4 @@
-## My implementation = not correctly deployed
+## My implementation = working
 
 # What remains?
 The NGWAF NGWAF ingress module integration and the agent deployment.
@@ -7,7 +7,7 @@ The NGWAF NGWAF ingress module integration and the agent deployment.
 
 Pre-reqs
 
-Install minikube
+Install kind
 Install kubectl
 Install container environment like colima
 Install docker-cli
