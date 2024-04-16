@@ -1,11 +1,9 @@
 ## My implementation = working
 
-# What remains?
-The NGWAF NGWAF ingress module integration and the agent deployment.
 
-# deploy.yaml taken from https://kubernetes.github.io/ingress-nginx/deploy/
+# The NGWAF NGWAF ingress module integration and the agent deployment.
 
-Pre-reqs
+# Pre-reqs
 
 Install kind
 Install kubectl
