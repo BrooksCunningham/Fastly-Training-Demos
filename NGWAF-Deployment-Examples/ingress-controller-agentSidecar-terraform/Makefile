@@ -73,9 +73,11 @@ get:
 rebuild:
 	make clean; sleep 30; make build
 
-make exec:
-	kubectl get pods | grep $(KUBEDEPLOYMENT) | awk '{print $$1}' | xargs -I {} echo kubectl exec --stdin --tty {} -- /bin/sh
-	kubectl get pods | grep $(KUBEDEPLOYMENT) | awk '{print $$1}' | xargs -I {} echo kubectl exec --stdin -c nginx --tty {} -- /bin/sh
+ingressexec:
+#	kubectl get pods --namespace=ingress-nginx | grep ingress-nginx-controller | awk '{print $$1}' | xargs -I {} echo kubectl exec --stdin --tty {} -c controller  -- /bin/sh
+#kubectl get pods | grep $(KUBEDEPLOYMENT) | awk '{print $$1}' | xargs -I {} echo kubectl exec --stdin -c nginx --tty {} -- /bin/sh
+	kubectl exec --namespace=ingress-nginx --stdin --tty `kubectl get pods --namespace=ingress-nginx | grep controller | awk '{print $$1}'` -c controller -- /bin/bash
+
 
 # kubectl exec --stdin --tty ngwaf-revproxy-9b976bd75-mzwdh -- /bin/sh
 

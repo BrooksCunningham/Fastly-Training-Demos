@@ -12,7 +12,7 @@ provider "kubernetes" {
 
 # resource "helm_release" "example" {
 #   name       = "helm-release-example"
-#   namespace = "ingress-nginx"
+#   namespace = kubernetes_namespace.example.metadata[0].name
 #   chart      = "ingress-nginx"
 #   repository = "https://kubernetes.github.io/ingress-nginx"
 
@@ -41,24 +41,6 @@ resource "kubernetes_namespace" "example" {
     name = "ingress-nginx"
   }
 }
-
-
-# resource "kubernetes_ingress_class_v1" "example" {
-#   metadata {
-#     name = "example"
-#   }
-
-#   spec {
-#     # controller = "example.com/ingress-controller"
-#     controller = "k8s.io/ingress-nginx"
-#     parameters {
-#       api_group = "networking.k8s.io/v1"
-#       kind      = "IngressClass"
-#       name      = "external-lb"
-#     }
-#   }
-# }
-
 
 resource "kubernetes_ingress_v1" "example" {
   metadata {

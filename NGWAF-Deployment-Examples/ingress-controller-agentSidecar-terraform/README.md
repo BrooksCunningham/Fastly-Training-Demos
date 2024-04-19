@@ -39,3 +39,35 @@ Events:       <none>
 ! kubectl delete ingressclasses  nginx
 ingressclass.networking.k8s.io "nginx" deleted
 ```
+
+
+# What I have tried with sigsci_enabled
+
+The following works without a defined location block
+```
+      server-snippet: |
+      sigsci_enabled off;
+```
+
+Does not work to block requests
+```
+      server-snippet: |
+        location = /apple/gprc {
+          sigsci_enabled off;
+          return 429;
+        }
+```
+
+This does block requests
+```
+        location = /apple/z {
+          return 429;
+        }
+```
+
+Cannot use `sigsci_enabled` in an NGINX `if` block
+```
+if ($request_method = PUT ) {
+    sigsci_enabled off;
+}
+```
