@@ -30,7 +30,7 @@ async function doCredentialStuffing(){
     // Iterate over each username and send a POST request
     const fetchPromises = usernames_passwords.map(async usernames_password => {
       // Generate a random number (200 or 401)
-      const number = getRandomInt(2) === 0 ? 200 : 401;
+      const number = getRandomInt(30) === 0 ? 200 : 401;
   
       // Construct the JSON body
       const jsonBody = JSON.stringify({
@@ -39,9 +39,10 @@ async function doCredentialStuffing(){
       });
   
       // Send the HTTP POST request
-      const url = 'https://http.edgecompute.app/anything/login';
+      const url = 'https://http-me.edgecompute.app/anything/login';
       const reqHeaders = {
         'Content-Type': 'application/json',
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'endpoint': `status=${number}`
       };
   
@@ -50,7 +51,7 @@ async function doCredentialStuffing(){
         method: 'POST',
         headers: reqHeaders,
         body: jsonBody,
-        backend: 'origin_0',
+        backend: 'credstuffingtarget',
       });
   
       return response
