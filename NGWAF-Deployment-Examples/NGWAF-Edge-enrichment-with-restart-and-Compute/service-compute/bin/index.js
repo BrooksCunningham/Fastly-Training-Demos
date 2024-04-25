@@ -94,7 +94,7 @@ async function handleRequest(event) {
   let DEBUG = 0;
   let event_client_ip = event.client.address;
 
-  // Set Debug Flag
+  // Set Debug Flag - CHANGE THIS FOR YOUR SYSTEM.
   if(req.headers.get("Fastly-Debug") == "10145-bdn") { DEBUG = 1; }
   let client_ip = req.headers.get("FASTLY-CLIENT-IP");
 
@@ -140,16 +140,15 @@ async function handleRequest(event) {
   if(ip_entry && ip_entry["expires"] >= now) {
     DEBUG ? console.log("Entry present and not expired, blocking:", client_ip, now, ip_entry["expires"]):null;
     return new Response("Ok", {
-      status: 200,
+      status: 404,
       headers: new Headers({ "Content-Type": "text/html; charset=utf-8" }),
     });
-  } else {
-    // If we have a key, but it's expired - remove it from they KV store ?
-    if(ip_entry) {
-      DEBUG ? console.log("Found an entry, but it's expired:",client_ip, now, ip_entry["expires"]):null;
-    }
+  } else if (ip_entry && ip_entry["expires"] < now) {
+      // If we have a key, but it's expired - remove it from they KV store
+      DEBUG ? console.log("Found an entry, but it's expired, deleting:",client_ip, now, ip_entry["expires"]):null;
+      await ip_list.delete(client_ip);
   }
-
+  
   // Add an IP to the blocklist
   if (url.pathname == "/add" && req.method == "POST") {
     // Add an ip to the KV store.
@@ -157,7 +156,9 @@ async function handleRequest(event) {
     // If key is present in KV, update the existing k/v pair
     // If it is not preset, then add it in
     // 7 day duration for block
-    //
+    // Test with : 
+    // fastly compute serve
+    // curl -q --data @payload.json "http://127.0.0.1:7676/add"
     
     // Populate the JSON object in memory from the body of the request.
     // relevant fields :
@@ -177,7 +178,13 @@ async function handleRequest(event) {
    
     let ip_entry = await kv_get(ip_list, payload["client.ip"], DEBUG);
     let now = Date.now();
-    let expires = now + 604800000;
+    let expires = now;
+
+    if(DEBUG) {
+      expires = now + 5000;
+    } else {
+      expires = now + 604800000;
+    }
     let value = '{ "added": '+now+',"expires": '+expires+' }';
 
     if(ip_entry == null) {
@@ -186,7 +193,7 @@ async function handleRequest(event) {
       DEBUG ? console.log("Entry found, updating:", ip_entry["added"], ip_entry["expires"],"|",now, expires):null;
     }
 
-    // Same operation updates existing values in Viceroy. Test this assumption online as well.
+    // Add or update the existing value in place.
     try {
       await ip_list.put(payload["client.ip"], value);
     } catch (error) {
@@ -202,13 +209,12 @@ async function handleRequest(event) {
     // For future expansion/addition of functionality.
   }
 
-  // Catch all other requests and return a 404 if we haven't been blocked.
+  // Catch all other requests and return a 200 if we haven't been blocked.
   return new Response("Ok", {
-    status: 404,
+    status: 200,
     headers: new Headers({ "Content-Type": "text/html; charset=utf-8" }),
   });
 }
-
 var __webpack_export_target__ = this;
 for(var i in __webpack_exports__) __webpack_export_target__[i] = __webpack_exports__[i];
 if(__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, "__esModule", { value: true });

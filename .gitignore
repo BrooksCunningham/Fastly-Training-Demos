@@ -46,3 +46,4 @@ NGWAF-Deployment-Examples/NGWAF-Edge-enrichment-with-restart-and-Compute/service
 ObjectStorePlusSIEM/compute-webhook-receiver/target/*
 
 */package-lock.json
+ObjectStorePlusSIEM/compute-basic-service/target/debug/.fingerprint/time-core-32076e2a2fbe4c93/dep-lib-time-core
