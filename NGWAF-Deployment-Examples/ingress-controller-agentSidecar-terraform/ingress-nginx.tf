@@ -94,6 +94,61 @@ resource "kubernetes_ingress_v1" "example" {
   }
 }
 
+resource "kubernetes_ingress_v1" "example-no-waf" {
+  metadata {
+    name      = "nosigsci-nginx-ingress"
+    # namespace = "ingress-nginx"
+    namespace = kubernetes_namespace.example.metadata[0].name
+    annotations = {
+      "nginx.ingress.kubernetes.io/rewrite-target" = "/"
+      "nginx.ingress.kubernetes.io/configuration-snippet" = <<multiline
+        sigsci_enabled off;
+        multiline
+    }
+  }
+
+  spec {
+    ingress_class_name = "nginx"
+    rule {
+      host = "demo.localdev.me"
+      http {
+        path {
+          path      = "/apple/nowaf"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = "apple-service"
+              port {
+                number = 5678
+              }
+            }
+          }
+        }
+        path {
+          path      = "/banana/nowaf"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = "banana-service"
+              port {
+                number = 5678
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  depends_on = [
+    kubernetes_service.banana_service,
+    kubernetes_service.apple_service,
+  ]
+  timeouts {
+    create = "1m"
+    delete = "1m"  
+  }
+}
+
 resource "kubernetes_pod" "banana_app" {
   metadata {
     name      = "banana-app"

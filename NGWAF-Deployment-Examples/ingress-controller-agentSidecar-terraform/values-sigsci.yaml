@@ -6,7 +6,7 @@ controller:
       digest: false
       pullPolicy: IfNotPresent
 
-    # Load module and set sigsci_agent_host
+    # Load module and set sigsci_agent_host, https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#http-snippet
     config:
       main-snippet: load_module /usr/lib/nginx/modules/ngx_http_sigsci_module.so;
       http-snippet: sigsci_agent_host unix:/sigsci/tmp/sigsci.sock;
