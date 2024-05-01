@@ -1,7 +1,8 @@
-# This file describes a Fastly Compute@Edge package. To learn more visit:
-# https://developer.fastly.com/reference/fastly-toml/
+# This file describes a Fastly Compute package. To learn more visit:
+# https://www.fastly.com/documentation/reference/compute/fastly-toml
 
-authors = [""]
+authors = ["brookscunningham@gmail.com"]
+cloned_from = "https://github.com/fastly/compute-starter-kit-javascript-openapi-validation"
 description = ""
 language = "javascript"
 manifest_version = 2
@@ -13,7 +14,7 @@ service_id = ""
   [local_server.backends]
 
     [local_server.backends.origin]
-      url = "https://httpbin.org/"
+      url = "https://http-me.edgecompute.app/"
 
 [scripts]
   build = "npm run build"
@@ -23,5 +24,5 @@ service_id = ""
   [setup.backends]
 
     [setup.backends.origin]
-      address = "http-me.glitch.me"
+      address = "http-me.edgecompute.app"
       description = "Application origin"
