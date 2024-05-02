@@ -1,13 +1,13 @@
 {
     "openapi": "3.0.1",
     "info": {
-      "title": "httpbin.org",
+      "title": "http.edgecompute.app",
       "description": "A simple HTTP Request & Response Service.",
       "version": "0.9.2"
     },
     "servers": [
       {
-        "url": "https://httpbin.org/"
+        "url": "https://http.edgecompute.app/"
       }
     ],
     "tags": [

@@ -13,7 +13,6 @@ An OpenAPI definition is a document (or set of documents) that defines or descri
 Within an OpenAPI spec, you may define the schema and format for a response. This is helpful if you want to control what type of data is allowed to be returned in a response. A pattern may be defined within an OpenAPI spec using a (pattern)[https://json-schema.org/understanding-json-schema/reference/string.html#pattern].
 
 ✅ Reduce the likelihood that sensitive data may be returned back to users or attackers.
-
 ✅ Improved API security
 
 ## Usage
@@ -26,17 +25,17 @@ When running this app locally try running commands like the following.
 
 ```
 # Request validation success
-curl -X POST http://127.0.0.1:7676/anything/login -d '{"username":"foo", "password":"secretbar"}' -i
+curl -X POST http://127.0.0.1:7676/anything/login -H host:http.edgecompute.app -d '{"username":"foo", "password":"secretbar"}' -i
 # Request validation fail because "username" is required fields in the request body
-curl -X POST http://127.0.0.1:7676/anything/login -d '{"foo":"abc"}' -i
+curl -X POST http://127.0.0.1:7676/anything/login -H host:http.edgecompute.app -d '{"foo":"abc"}' -i
 
 # Request validation success
 curl -X GET http://127.0.0.1:7676/html -i
 
 # Response validation is successful
-curl -X POST http://127.0.0.1:7676/anything/barfoo -d '{"username":"foo", "password":"secretbar"}' -i
+curl -X POST http://127.0.0.1:7676/anything/barfoo -H host:http.edgecompute.app -d '{"username":"foo", "password":"secretbar"}' -i
 # Response validation fails because "foobar" is not allowed in the response body field "url".
-curl -X POST http://127.0.0.1:7676/anything/foobar -d '{"username":"foo", "password":"secretbar"}' -i
+curl -X POST http://127.0.0.1:7676/anything/foobar -H host:http.edgecompute.app -d '{"username":"foo", "password":"secretbar"}' -i
 ```
 The response to the URL `/anything/foobar` will fail because the property "url" in the response schema does not allow the "foobar" in the response.
 
