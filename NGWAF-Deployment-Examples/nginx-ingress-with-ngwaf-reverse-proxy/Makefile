@@ -14,7 +14,7 @@ build:
 demo:
 	kubectl get services
 	echo "curl" `kubectl get services $(KUBEDEPLOYMENT)-lb | grep $(KUBEDEPLOYMENT) | awk '{print $$4}'`/anything/123
-	curl --resolve hello-world.info:80:$$( minikube ip ) -i http://hello-world.info
+	curl `(minikube ip)`/anything/nginx-ingress-with-rev-proxy -i 
 # curl $$(minikube service ngwaf-reverse-proxy-nodeport-service --url)/anything/hello-ngwaf
 
 	

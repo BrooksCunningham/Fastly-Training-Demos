@@ -56,7 +56,10 @@ data:
             proxy_set_header Host "http-me.edgecompute.app";
             proxy_pass https://http-me.edgecompute.app;
           }
-          location /hello {
+        location /anything/noinspect/ {
+          sigsci_enabled  off;
+        }
+        location /hello {
             return 200 "Hello world from NGWAF and nginx!\n";
           }
       }
@@ -109,9 +112,9 @@ spec:
 
       - name: nginx
         # image: nginx:latest
-        image: bcunningham/nginx-module
+        image: mylocaltrainingimages/nginx-module
         imagePullPolicy: Never
-        # Never pull the remote instance since this is built locally
+        # Never pull the remote instance since this is built locally. IfNotPresent
         ports:
         - containerPort: 80
           name: web

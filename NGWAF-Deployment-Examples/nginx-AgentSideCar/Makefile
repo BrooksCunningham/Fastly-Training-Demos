@@ -4,22 +4,37 @@ KUBEYAML?=nginx_sidecar.yaml
 
 # Environment variables $NGWAFACCESSKEYID and $NGWAFACCESSKEYSECRET must already be set before running `make build`
 build:
-	- docker build . -t mylocaltrainingimages/nginx-module
+	- docker build . -t 127.0.0.1:5000/local-nginx-module
+	- docker push 127.0.0.1:5000/local-nginx-module
 	-@ kubectl create secret generic ngwaf-agent-keys --from-literal=accesskeyid=${NGWAFACCESSKEYID} --from-literal=secretaccesskey=${NGWAFACCESSKEYSECRET}
 	kubectl apply -f $(KUBEYAML)
-	echo "Run the command minikube tunnel command. Then run make demo in a seperate terminal to see how to test locally."
 	-@ sleep 5
-	-@ make demo
+#	-@ make demo
+
+kbuild:
+	kubectl apply -f $(KUBEYAML)
+	-@ sleep 5
+
+kclean:
+	- kubectl delete -f $(KUBEYAML)
+
+krebuild:
+	make kclean
+	sleep 5
+	make kbuild
 
 
 demo:
 	kubectl get services
 	echo "curl" `kubectl get services $(KUBEDEPLOYMENT)-lb | grep $(KUBEDEPLOYMENT) | awk '{print $$4}'`/anything/123
-	
+	kubectl run curl-pod --image=appropriate/curl --rm -it -- sh
+
+# kubectl run nginx-module-pod --image=mylocaltrainingimages/nginx-module --rm -it -- sh 
+
 clean:
 	- kubectl delete -f $(KUBEYAML)
 	sleep 3
-	- docker image rm mylocaltrainingimages/nginx-module
+	- docker image rm 127.0.0.1:5000/local-nginx-module
 # kubectl get deployments
 # - kubectl get deployment $(KUBEDEPLOYMENT) | awk '{print $$1}' | xargs kubectl delete deployment
 # - kubectl get services $(KUBEDEPLOYMENT)-lb | awk '{print $$1}' | xargs kubectl delete services
@@ -27,9 +42,10 @@ clean:
 
 describe:
 	kubectl describe pods	
+	kubectl describe services
 
 get:	
-	- kubectl get 
+	- kubectl get pods
 	- kubectl get services
 # - kubectl get services $(KUBEDEPLOYMENT)-lb
 

@@ -52,21 +52,8 @@ async function validateRequest(req, openAPIValidator) {
   try {
     const req_clone = req.clone();
     const url = new URL(req_clone.url);
-    // Build a normalized Request object to pass to the OpenAPI validator.
-    // https://github.com/anttiviljami/openapi-backend/blob/master/DOCS.md#request-object
-    // if (req.method == "GET" || req.method == "HEAD") {
-    //   const normalizedForValidation = {
-    //     method: req.method,
-    //     // path of the request
-    //     path: url.pathname,
-    //     // HTTP request headers
-    //     headers: Object.fromEntries(req.headers.entries()),
-    //     // parsed query parameters (optional), we also parse query params from the path property
-    //     query: Object.fromEntries(url.searchParams.entries()),
-    //     // the request body (optional), either raw buffer/string or a parsed object/array
-    //     // body: req.body,
-    //   }
-    // } else {
+
+    // Clones the request to retreive the body of the request.
     const reqBodyText = await req_clone.text();
     const normalizedForValidation = {
       method: req_clone.method,
@@ -79,7 +66,6 @@ async function validateRequest(req, openAPIValidator) {
       // the request body is not available for a GET request
       body: reqBodyText,
     };
-    // }
 
     // Match the request to an operation from the OpenAPI definition.
     const operation = openAPIValidator.router.matchOperation(
