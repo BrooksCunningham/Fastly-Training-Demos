@@ -47,3 +47,4 @@ ObjectStorePlusSIEM/compute-webhook-receiver/target/*
 
 */package-lock.json
 ObjectStorePlusSIEM/compute-basic-service/target/*
+ato-demo/demo.sh
