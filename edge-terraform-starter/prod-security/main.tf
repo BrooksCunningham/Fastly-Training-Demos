@@ -23,6 +23,7 @@ resource "sigsci_site_signal_tag" "bad-response-signal" {
   site_short_name = var.NGWAF_SITE
   name            = "bad-response"
   description     = "Identification of attacks from malicious IPs"
+  depends_on = [ module.edge_security ]
 }
 
 resource "sigsci_site_rule" "enumeration-attack-rule" {
@@ -66,6 +67,7 @@ resource "sigsci_site_rule" "enumeration-attack-rule" {
 
   depends_on = [
     sigsci_site_signal_tag.bad-response-signal,
+    module.edge_security
   ]
 }
 

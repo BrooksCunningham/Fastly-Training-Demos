@@ -1,11 +1,12 @@
 # Configure the Fastly Provider
-provider "fastly" {
-  api_key = var.FASTLY_API_KEY
-}
+# provider "fastly" {
+#   api_key = var.FASTLY_API_KEY
+# }
 
 #### Fastly VCL Service - Start
 resource "fastly_service_vcl" "frontend_vcl_service" {
-  name = "Frontend VCL Service - edge deploy ${var.SERVICE_VCL_FRONTEND_DOMAIN_NAME}"
+  # provider = fastly.primary
+  name     = "Frontend VCL Service - edge deploy ${var.SERVICE_VCL_FRONTEND_DOMAIN_NAME}"
 
   domain {
     name    = var.SERVICE_VCL_FRONTEND_DOMAIN_NAME
@@ -21,12 +22,12 @@ resource "fastly_service_vcl" "frontend_vcl_service" {
     override_host     = var.SERVICE_VCL_BACKEND_HOSTNAME
   }
 
-  #### Only disable caching for testing. Do not disable caching for production traffic.
+  #### Disable caching, but keep request collapsing https://www.fastly.com/documentation/reference/vcl/variables/backend-response/beresp-cacheable/#effects-on-request-collapsing
   snippet {
-     name     = "Disable caching"
-     content  = file("${path.module}/vcl/disable_caching.vcl")
-     type     = "recv"
-     priority = 1000
+    name     = "Disable caching"
+    content  = "set beresp.cacheable = false;"
+    type     = "fetch"
+    priority = 9000
   }
 
   snippet {
@@ -133,12 +134,12 @@ resource "fastly_service_dynamic_snippet_content" "ngwaf_config_deliver" {
 
 #### Edge deploy and sync - Start
 
-provider "sigsci" {
-  corp           = var.NGWAF_CORP
-  email          = var.NGWAF_EMAIL
-  auth_token     = var.NGWAF_TOKEN
-  fastly_api_key = var.FASTLY_API_KEY
-}
+# provider "sigsci" {
+#   corp           = var.NGWAF_CORP
+#   email          = var.NGWAF_EMAIL
+#   auth_token     = var.NGWAF_TOKEN
+#   fastly_api_key = var.FASTLY_API_KEY
+# }
 
 # resource "sigsci_edge_deployment" "ngwaf_edge_site_service" {
 #   # https://registry.terraform.io/providers/signalsciences/sigsci/latest/docs/resources/edge_deployment
