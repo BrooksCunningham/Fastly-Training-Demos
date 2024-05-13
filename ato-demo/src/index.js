@@ -40,10 +40,12 @@ async function doCredentialStuffing(){
   
       // Send the HTTP POST request
       // const url = 'https://http-me.edgecompute.app/anything/login';
-      const url = 'https://bcunning-ngwaf-lab.global.ssl.fastly.net/anything/login';
+      // const url = 'https://bcunning-ngwaf-lab.global.ssl.fastly.net/anything/login';
+      const url = 'https://dev-tf-demo.global.ssl.fastly.net/anything/login';
       const reqHeaders = {
         'Content-Type': 'application/json',
         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': '*/*',
         'endpoint': `status=${number}`
       };
   
