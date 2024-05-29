@@ -14,13 +14,8 @@ module "service_vcl" {
   SERVICE_VCL_FRONTEND_DOMAIN_NAME = var.SERVICE_VCL_FRONTEND_DOMAIN_NAME
   SERVICE_VCL_BACKEND_HOSTNAME     = var.SERVICE_VCL_BACKEND_HOSTNAME
   NGWAF_SITE                       = var.NGWAF_SITE
-  # NGWAF_EMAIL                      = var.NGWAF_EMAIL
-  # NGWAF_TOKEN                      = var.NGWAF_TOKEN
-  # NGWAF_CORP                       = var.NGWAF_CORP
 
   providers = {
-    # fastly.primary = fastly.primary
-    # sigsci.primary = sigsci.primary
     fastly = fastly
     sigsci = sigsci
   }
