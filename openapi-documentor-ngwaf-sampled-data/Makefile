@@ -26,3 +26,11 @@ trace:
 
 # debug:
 # 	@echo "http http://127.0.0.1:7676/get_sampled_logs ngwaf_email=$$NGWAF_EMAIL ngwaf_token=$$NGWAF_TOKEN corpName=$$NGWAF_CORP siteName=$$NGWAF_SITE	TRACE_SOURCE_TOKE=${TRACE_SOURCE_TOKEN} -p=bBhH"
+
+prep:
+	@curl -ik -sD - -o /dev/null 'http://0.0.0.0:9999/v2/user/login?username=bob&password=sesime' 	-H 'accept: application/json'	-H 'host: petstore.swagger.io'   	
+	@curl -ik -sD - -o /dev/null 'http://0.0.0.0:9999/v2/user/bob' 	-X 'OPTIONS' 	-H 'host: petstore.swagger.io' 	-H 'accept: */*' 		
+	@curl -ik -sD - -o /dev/null 'http://0.0.0.0:9999/v2/user/bob' 	-X 'DELETE' 	-H 'accept: application/json'
+	@curl -ik -sD - -o /dev/null 'http://0.0.0.0:9999/v2/user/bob' 	-X 'OPTIONS' 	-H 'accept: */*' 	-H 'host: petstore.swagger.io' 
+	@curl -ik -sD - -o /dev/null 'http://0.0.0.0:9999/v2/user/bob' 	-X 'PUT' 	-H 'accept: application/json' 	-H 'cache-control: no-cache' 	-H 'content-type: application/json' 	-H 'origin: http://0.0.0.0:9999' --data-raw '{\n  "id": 0,\n  "username": "string",\n  "firstName": "string",\n  "lastName": "string",\n  "email": "string",\n  "password": "string",\n  "phone": "string",\n  "userStatus": 0\n}'
+	@curl -ik -sD - -o /dev/null 'http://0.0.0.0:9999/v2/user/bob' 	-H 'accept: application/json' 
