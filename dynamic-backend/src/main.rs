@@ -7,7 +7,6 @@ use std::time::Duration;
 
 #[fastly::main]
 fn main(req: Request) -> Result<Response, Error> {
-
     let resp = match req.get_path() {
         "/static/domain_form.html" => static_response(include_bytes!("static/domain_form.html")),
         "/dynamic_backend/submit" => domain_cookie_response(req),
@@ -44,19 +43,15 @@ fn domain_cookie_response(mut req: Request) -> Response {
 }
 
 fn send_req_to_backend(req: Request) -> Result<Response, Error> {
-    
     let target_host = match req.get_header_str("cookie") {
         Some(cookie) => {
             let cookies = parse_cookies(cookie);
             // let fsly_domain_value = cookies.get("fsly_domain").unwrap();
 
             let fsly_domain_value = match cookies.get("fsly_domain") {
-                Some(cookie_value) => {
-                    cookie_value
-                },
-                None => "http.edgecompute.app"                
+                Some(cookie_value) => cookie_value,
+                None => "http.edgecompute.app",
             };
-
 
             fsly_domain_value.to_string()
         }
@@ -77,7 +72,7 @@ fn send_req_to_backend(req: Request) -> Result<Response, Error> {
         .finish()?;
 
     let resp = req.send(backend)?;
-    
+
     return Ok(resp);
 }
 
