@@ -1,12 +1,24 @@
+mod oauthworkflow;
+
 use fastly::http::{header, StatusCode};
 use fastly::{Backend, Error, Request, Response};
 use serde;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::time::Duration;
+use oauthworkflow::do_oauth_workflow;
+
 
 #[fastly::main]
-fn main(req: Request) -> Result<Response, Error> {
+fn main(mut req: Request) -> Result<Response, Error> {
+
+    let cloned_req = req.clone_with_body();
+    let oauth_resp = do_oauth_workflow(cloned_req)?;
+
+    if oauth_resp.get_header_str("oauth-status") != Some("success") {
+        return Ok(oauth_resp);
+    }
+
     let resp = match req.get_path() {
         "/static/domain_form.html" => static_response(include_bytes!("static/domain_form.html")),
         "/dynamic_backend/submit" => domain_cookie_response(req),
@@ -90,3 +102,4 @@ fn parse_cookies(header_str: &str) -> HashMap<String, String> {
     }
     cookies
 }
+
