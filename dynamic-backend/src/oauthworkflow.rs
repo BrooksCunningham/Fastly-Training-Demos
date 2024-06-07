@@ -32,13 +32,21 @@ pub fn do_oauth_workflow(mut req: Request) -> Result<Response, Error> {
     println!("Cookie map: {:?}", cookie);
 
     // Build the OAuth 2.0 redirect URL.
-    let redirect_uri = match fastly_service_version.as_str() {
-        "0" => format!(
+    let redirect_uri = match (fastly_service_version.as_str(), req.get_header("original-host")) {
+        ("0" , None) => format!(
             "http://{}:7676{}",
             req.get_url().host_str().unwrap(),
             settings.config.callback_path
         ),
-        _ => format!(
+        (_, Some(original_host)) => {
+            println!("redirect_uri: original_host header");
+            format!(
+                "https://{}{}",
+                original_host.to_str()?,
+                settings.config.callback_path
+            )
+        },
+        (_, None) => format!(
             "https://{}{}",
             req.get_url().host_str().unwrap(),
             settings.config.callback_path
@@ -46,7 +54,8 @@ pub fn do_oauth_workflow(mut req: Request) -> Result<Response, Error> {
     };
 
     // If the path matches the redirect URL path, continue the OAuth 2.0 authorization code flow.
-    if req.get_url_str().starts_with(&redirect_uri) {
+    let req_redirect_url = Request::get(&redirect_uri);
+    if req.get_path().starts_with(req_redirect_url.get_path()) {
         // VERIFY THE AUTHORIZATION CODE AND EXCHANGE IT FOR TOKENS.
         println!("Authorization code obtained; verifying and exchanging for tokens...");
 
