@@ -18,7 +18,3 @@ service_id = ""
     [local_server.backends.apiclarity]
       url = "http://127.0.0.1:9000/"
 
-  [local_server.config_stores]
-    [local_server.config_stores.apiclarity_configstore]
-      file = "apiclarity_configstore.json"
-      format = "json"

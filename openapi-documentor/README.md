@@ -4,24 +4,14 @@
 
 ## Start up an APIClarity environment
 
-See `./apiclarity/values.yaml` for those instructions
+Run `make buildapiclarity`
+In 2 different terminals run `make trace` and `make ui`
 
-## Update the fastly environment
-
-Create or update the `./apiclarity_configstore.json` file with the APIClarity key for your install.
-
-```
-{
-    "trace_source_token": "YOUR_KEY_HERE"
-}
-```
-
-Start up a local fastly compute instance
-```
-fastly compute serve
-```
+Set the TRACE_SOURCE_TOKEN token.
+`export TRACE_SOURCE_TOKEN=$(curl --http1.1 --insecure -s -H 'Content-Type: application/json' -d '{"name":"apigee_gateway","type":"APIGEE_X"}' http://localhost:8080/api/control/traceSources | jq -r '.token')`
 
 ## Generate some traffic to the local Fastly service
+
 ```
 curl -H host:http-me.edgecompute.app http://127.0.0.1:7676/status/200
 curl -H host:http-me.edgecompute.app http://127.0.0.1:7676/status/302
