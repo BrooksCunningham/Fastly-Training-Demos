@@ -111,7 +111,6 @@ spec:
           mountPath: /sigsci/tmp
 
       - name: nginx
-        # image: nginx:latest
         image: mylocaltrainingimages/nginx-module
         imagePullPolicy: Never
         # Never pull the remote instance since this is built locally. IfNotPresent

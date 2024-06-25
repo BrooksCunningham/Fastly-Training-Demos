@@ -1,11 +1,15 @@
 KUBEDEPLOYMENT?=nginx-module-with-ngwaf-sidecar
 KUBEYAML?=nginx_sidecar.yaml
+CONTAINERNAME?=mylocaltrainingimages/nginx-module
+# CONTAINERNAME?=127.0.0.1:5000/local-nginx-module
 # KUBEYAML?=nginx-deploy.yaml
 
 # Environment variables $NGWAFACCESSKEYID and $NGWAFACCESSKEYSECRET must already be set before running `make build`
+# make sure that you are running kind and load the image into kind
 build:
-	- docker build . -t 127.0.0.1:5000/local-nginx-module
-	- docker push 127.0.0.1:5000/local-nginx-module
+	- docker build . -t $(CONTAINERNAME)
+# - docker push $(CONTAINERNAME)
+	- kind load docker-image $(CONTAINERNAME)
 	-@ kubectl create secret generic ngwaf-agent-keys --from-literal=accesskeyid=${NGWAFACCESSKEYID} --from-literal=secretaccesskey=${NGWAFACCESSKEYSECRET}
 	kubectl apply -f $(KUBEYAML)
 	-@ sleep 5
@@ -34,7 +38,8 @@ demo:
 clean:
 	- kubectl delete -f $(KUBEYAML)
 	sleep 3
-	- docker image rm 127.0.0.1:5000/local-nginx-module
+	- docker image rm $(CONTAINERNAME)
+# - docker image rm 127.0.0.1:5000/local-nginx-module
 # kubectl get deployments
 # - kubectl get deployment $(KUBEDEPLOYMENT) | awk '{print $$1}' | xargs kubectl delete deployment
 # - kubectl get services $(KUBEDEPLOYMENT)-lb | awk '{print $$1}' | xargs kubectl delete services
