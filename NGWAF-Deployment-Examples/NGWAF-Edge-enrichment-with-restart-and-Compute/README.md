@@ -1,5 +1,9 @@
 # Enrich requests to the origin via a VCL restart
 
+## Why do this?
+
+Fastly's ERL is great for detecting an mitigating abusive traffic within the available windows. However, SIEMs can have the full picture of all traffic. By using the SIEM to push imformation to the Fastly edge, you are able to detect and mitigate abusive traffic traffic once that traffic is identified by the SIEM.
+
 Following pragmas must be set to true. Open a Support ticket for these to be set.
 * fix_unsent_body_drain
 * no_body_if_bereq_is_get_or_head
