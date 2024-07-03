@@ -34,17 +34,39 @@ fn main(mut req: Request) -> Result<Response, Error> {
                 csp_config_store.get("mode").unwrap_or("foo".to_string())
             );
 
-            
             // Use either the blocking header or the reporting header
-            let csp_header_name = match csp_config_store.get("mode"){
+            let csp_header_name = match csp_config_store.get("mode") {
                 Some(val) if val == "blocking" => "Content-Security-Policy",
                 _ => "Content-Security-Policy-Report-Only",
             };
 
+            let csp_script_src = match csp_config_store.get("script-src") {
+                Some(val) => val,
+                _ => "self".to_string(),
+            };
+
+            let csp_report_to = match csp_config_store.get("report-to") {
+                Some(val) => val,
+                _ => "main-endpoint".to_string(),
+            };
+
+            let csp_header_value = format!(
+                r#"script-src {}; object-src none; report-to {};"#,
+                &csp_script_src, &csp_report_to
+            );
+
+            let csp_reporting_endpoint_value = match req.get_url().domain() {
+                Some(val) => format!(r#"main-endpoint="https://{}", default="https://csp-reports.edgecompute.app/default""#,val),
+                _ => r#"main-endpoint=http://127.0.0.1""#.to_string(),
+            };
+
+
+            // let csp_reporting_endpoint_value = r#"main-endpoint="https://csp-reports.edgecompute.app/csp-main-endpoint", default="https://csp-reports.edgecompute.app/default""#;
+
             Ok(Response::from_status(StatusCode::OK)
                 .with_content_type(mime::TEXT_HTML_UTF_8)
-                .with_header(csp_header_name, "script-src 'self'; object-src 'none'; report-to main-endpoint;")
-                .with_header("Reporting-Endpoints", r#"main-endpoint="https://csp-reports.edgecompute.app/csp-main-endpoint", default="https://csp-reports.edgecompute.app/default""#)
+                .with_header(csp_header_name, &csp_header_value)
+                .with_header("Reporting-Endpoints", csp_reporting_endpoint_value)
                 .with_body(include_str!("welcome-to-compute.html")))
         }
 
