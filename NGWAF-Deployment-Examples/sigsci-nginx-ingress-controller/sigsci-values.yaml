@@ -23,11 +23,9 @@ controller:
         - name: SIGSCI_RPC_ADDRESS
           value: unix:/sigsci/tmp/sigsci.sock
         - name: SIGSCI_ACCESSKEYID
-          value: a2e39051-e275-499f-b32d-faa6e654d6a0
+          value: value
         - name: SIGSCI_SECRETACCESSKEY
-          value: W5lhYkAqaZD2nigbD3JV6YKaB1OXLHI7VB_5z3ZogjE
-          # accesskeyid="a2e39051-e275-499f-b32d-faa6e654d6a0"
-          # secretaccesskey="W5lhYkAqaZD2nigbD3JV6YKaB1OXLHI7VB_5z3ZogjE"
+          value: value
 
     # Mounts shared volume for sigsci.sock file
     extraVolumeMounts:
