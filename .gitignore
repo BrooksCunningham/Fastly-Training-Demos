@@ -49,3 +49,19 @@ ObjectStorePlusSIEM/compute-webhook-receiver/target/*
 ObjectStorePlusSIEM/compute-basic-service/target/*
 ato-demo/demo.sh
 dynamic-backend/src/oauthworkflow/config.toml
+
+# 3rd party integrations
+*/*/*.sh
+*/*/*.txt
+*/*/*.bin
+*/*/fastly.toml
+*/*/*.pem
+*/*/*.sha256
+*/*/*.p12
+*/*/*.zip
+*/*/mtls_certs/*
+*/*/certs/*
+*/*/.cargo
+*/*/src/*.pem
+*/*/src/*.bin
+*/*/src/*.txt
