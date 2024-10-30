@@ -1,5 +1,6 @@
 # This file describes a Fastly Compute package. To learn more visit:
 # https://www.fastly.com/documentation/reference/compute/fastly-toml
+# Example for setup config. https://github.com/fastly/compute-rust-auth/blob/main/fastly.toml
 
 authors = ["brookscunningham@gmail.com"]
 cloned_from = "https://github.com/fastly/compute-starter-kit-rust-empty"
