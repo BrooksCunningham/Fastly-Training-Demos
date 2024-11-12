@@ -1,11 +1,8 @@
-use fastly::experimental::{inspect, InspectConfig, InspectError, InspectResponse};
+use fastly::security::{inspect, InspectConfig, InspectError, InspectResponse};
 use fastly::handle::BodyHandle;
 use fastly::{Error, Request, Response};
 
-use fastly::http::{HeaderName, HeaderValue, Method, StatusCode};
-// use fastly::{log, Request, Response};
-// use fastly::handle::RequestHandle;
-// use std::time::Duration;
+use fastly::http::{HeaderValue, StatusCode};
 
 use boring;
 use hex;
