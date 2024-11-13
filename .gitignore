@@ -65,3 +65,4 @@ dynamic-backend/src/oauthworkflow/config.toml
 */*/src/*.pem
 */*/src/*.bin
 */*/src/*.txt
+3rd-party-integrations/appdome-compute-rust/fastly.toml

@@ -7,6 +7,7 @@ use fastly::http::{HeaderValue, StatusCode};
 use boring;
 use hex;
 use sha2::{Digest, Sha256};
+use base64::prelude::*;
 
 #[fastly::main]
 fn main(mut req: Request) -> Result<Response, Error> {
@@ -58,8 +59,13 @@ fn appdome_inspect(req: Request) -> Result<Request, Error> {
 
     let decrypted_threatid_bytes = hex::decode(&decrypted_threatid)?;
 
-    let threatid_str = std::str::from_utf8(&decrypted_threatid_bytes)?;
-    println!("DEBUG, threatid_str, {}", &threatid_str);
+    let threatid_base64 = std::str::from_utf8(&decrypted_threatid_bytes)?;
+    // println!("DEBUG, threatid_str, {}", &threatid_str);
+    // let threatid_base64 = BASE64_STANDARD.encode(&threatid_str);
+    // println!("DEBUG, threatid_base64, {}", &threatid_base64);
+    // TODO. Add error handling
+    let appdome_threatid = String::from_utf8(BASE64_STANDARD.decode(&threatid_base64)?)?;
+    println!("DEBUG, appdome_threatid, {}", appdome_threatid);
     println!("DEBUG, metadata, {}", &metadata);
 
     let decrypted_signed_message = decrypt(&signed_message).unwrap_or("".to_string());
@@ -87,7 +93,7 @@ fn appdome_inspect(req: Request) -> Result<Request, Error> {
         println!("DEBUG, compromised_hash_result_match");
     };
 
-    req.set_header("appdome-threatid", threatid_str);
+    req.set_header("appdome-threatid", appdome_threatid);
 
     return Ok(req);
 }
