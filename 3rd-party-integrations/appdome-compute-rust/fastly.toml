@@ -1,6 +1,5 @@
 # This file describes a Fastly Compute package. To learn more visit:
 # https://www.fastly.com/documentation/reference/compute/fastly-toml
-# Example for setup config. https://github.com/fastly/compute-rust-auth/blob/main/fastly.toml
 
 authors = ["brookscunningham@gmail.com"]
 cloned_from = "https://github.com/fastly/compute-starter-kit-rust-empty"
@@ -10,18 +9,21 @@ manifest_version = 3
 name = "appdome-compute-rust"
 service_id = ""
 
-[scripts]
-  build = "cargo build --bin fastly-compute-project --release --target wasm32-wasi --color always"
-
-
 [local_server]
+
   [local_server.backends]
+
     [local_server.backends.HTTPME]
       url = "https://http.edgecompute.app"
 
   [local_server.config_stores]
+
     [local_server.config_stores.ngwaf]
       format = "inline-toml"
-    [local_server.config_stores.ngwaf.contents]
-      "corp" = ""
-      "site" = ""
+
+      [local_server.config_stores.ngwaf.contents]
+        corp = ""
+        site = ""
+
+[scripts]
+  build = "cargo build --bin fastly-compute-project --release --target wasm32-wasi --color always"

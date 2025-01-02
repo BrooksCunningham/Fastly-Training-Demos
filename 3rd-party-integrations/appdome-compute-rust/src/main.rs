@@ -1,3 +1,4 @@
+use boring::reexports::rsa::pkcs8::der::Header;
 use fastly::security::{inspect, InspectConfig, InspectError, InspectResponse};
 use fastly::handle::BodyHandle;
 use fastly::{Error, Request, Response};
@@ -19,8 +20,6 @@ fn main(mut req: Request) -> Result<Response, Error> {
 
     // Do not cache requests
     req.set_pass(true);
-
-    // println!("{:?}", &req);
 
     let req = appdome_inspect(req)?;
 
@@ -93,7 +92,11 @@ fn appdome_inspect(req: Request) -> Result<Request, Error> {
         println!("DEBUG, compromised_hash_result_match");
     };
 
-    req.set_header("appdome-threatid", appdome_threatid);
+
+    let appdome_threatid_headervalue = HeaderValue::from_str(&appdome_threatid)
+    .unwrap_or(HeaderValue::from_static("no_threats"));
+
+    req.set_header("appdome-threatid", appdome_threatid_headervalue);
 
     return Ok(req);
 }
