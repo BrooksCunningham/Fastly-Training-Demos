@@ -1,14 +1,13 @@
-use boring::reexports::rsa::pkcs8::der::Header;
-use fastly::security::{inspect, InspectConfig, InspectError, InspectResponse};
 use fastly::handle::BodyHandle;
+use fastly::security::{inspect, InspectConfig, InspectError, InspectResponse};
 use fastly::{Error, Request, Response};
 
 use fastly::http::{HeaderValue, StatusCode};
 
+use base64::prelude::*;
 use boring;
 use hex;
 use sha2::{Digest, Sha256};
-use base64::prelude::*;
 
 #[fastly::main]
 fn main(mut req: Request) -> Result<Response, Error> {
@@ -24,9 +23,33 @@ fn main(mut req: Request) -> Result<Response, Error> {
     let req = appdome_inspect(req)?;
 
     // Returns req to allow for setting request headers based on the WAF inspection.
-    let (mut req, waf_inspection_result) = do_waf_inspect(req);
+    let (mut req, _waf_inspection_result) = do_waf_inspect(req);
 
-    Ok(Response::from_status(StatusCode::OK).with_body("hello from compute"))
+    // v9 was last good version
+    println!("DEBUG, {:?}, {:?}", req.get_header("waf-verdict"), req.get_header("waf-response"));
+    match (req.get_header("waf-verdict"), req.get_header("waf-response")) {
+        (Some(waf_verdict), Some(waf_response_code)) => {
+            if waf_verdict.to_str().unwrap_or("") != "Allow" {
+                // Create a new response with the parsed status code.
+                let status_code = waf_response_code.to_str().unwrap_or("").parse::<u16>().unwrap_or(0);
+                let status = StatusCode::from_u16(status_code)
+                    .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
+            
+                return Ok(Response::from_status(status)
+                    .with_body_text_plain("Request blocked by WAF"));
+            }
+        },
+        (_,_) => ()
+    };
+
+    // Ok(Response::from_status(StatusCode::OK).with_body("hello from compute"))
+
+    // send request to the backend
+    req.set_header("host", "http.edgecompute.app");
+    let beresp = req.send("HTTPME")?;
+
+    // return the response
+    Ok(beresp)
 }
 
 fn appdome_inspect(req: Request) -> Result<Request, Error> {
@@ -48,22 +71,29 @@ fn appdome_inspect(req: Request) -> Result<Request, Error> {
     let timestamp_u64: u64 = timestamp.parse().unwrap_or(0);
     let timestamp_compare_result = compare_epoch(timestamp_u64);
 
-    println!("DEBUG, timestamp_compare_result, {}", &timestamp_compare_result);
+    println!(
+        "DEBUG, timestamp_compare_result, {}",
+        &timestamp_compare_result
+    );
 
     println!("DEBUG, valid, {}", &valid);
     let compromised = format!("{}_{}_{}", timestamp, nonce, compromised_secret);
     println!("DEBUG, compromised, {}", &compromised);
 
     let decrypted_threatid = decrypt(&threatid).unwrap_or("".to_string());
+    println!("DEBUG, decrypted_threatid, {}", &decrypted_threatid);
 
     let decrypted_threatid_bytes = hex::decode(&decrypted_threatid)?;
 
     let threatid_base64 = std::str::from_utf8(&decrypted_threatid_bytes)?;
-    // println!("DEBUG, threatid_str, {}", &threatid_str);
     // let threatid_base64 = BASE64_STANDARD.encode(&threatid_str);
     // println!("DEBUG, threatid_base64, {}", &threatid_base64);
-    // TODO. Add error handling
-    let appdome_threatid = String::from_utf8(BASE64_STANDARD.decode(&threatid_base64)?)?;
+    let appdome_threatid = String::from_utf8(
+        BASE64_STANDARD
+            .decode(&threatid_base64)
+            .unwrap_or(b"error".to_vec()),
+    )
+    .unwrap_or("error".to_string());
     println!("DEBUG, appdome_threatid, {}", appdome_threatid);
     println!("DEBUG, metadata, {}", &metadata);
 
@@ -92,9 +122,8 @@ fn appdome_inspect(req: Request) -> Result<Request, Error> {
         println!("DEBUG, compromised_hash_result_match");
     };
 
-
-    let appdome_threatid_headervalue = HeaderValue::from_str(&appdome_threatid)
-    .unwrap_or(HeaderValue::from_static("no_threats"));
+    let appdome_threatid_headervalue =
+        HeaderValue::from_str(&appdome_threatid).unwrap_or(HeaderValue::from_static("no_threats"));
 
     req.set_header("appdome-threatid", appdome_threatid_headervalue);
 
@@ -271,13 +300,14 @@ fn do_waf_inspect(mut req: Request) -> (Request, Response) {
     }
 }
 
-fn compare_epoch(given_epoch: u64) -> bool{
+fn compare_epoch(given_epoch: u64) -> bool {
     // use chrono::{DateTime, NaiveDateTime, Utc};
     use std::time::{SystemTime, UNIX_EPOCH};
 
     // Get the current epoch time
     let start = SystemTime::now();
-    let since_the_epoch = start.duration_since(UNIX_EPOCH)
+    let since_the_epoch = start
+        .duration_since(UNIX_EPOCH)
         .expect("Time went backwards");
     let current_epoch = since_the_epoch.as_secs();
 
@@ -285,9 +315,8 @@ fn compare_epoch(given_epoch: u64) -> bool{
     let thirty_minutes = current_epoch - (30 * 60);
     if thirty_minutes < given_epoch {
         println!("The given date is less than 30 minutes in the past.");
-        return true
+        return true;
     }
     println!("The given date is not less than 30 minutes in the past.");
-    return false
-        
+    return false;
 }
