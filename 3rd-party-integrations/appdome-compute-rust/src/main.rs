@@ -4,7 +4,7 @@ use fastly::{Error, Request, Response};
 
 use fastly::http::{HeaderValue, StatusCode};
 
-use base64::prelude::*;
+//use base64::prelude::*;
 use boring;
 use hex;
 use sha2::{Digest, Sha256};
@@ -84,17 +84,9 @@ fn appdome_inspect(req: Request) -> Result<Request, Error> {
     println!("DEBUG, decrypted_threatid, {}", &decrypted_threatid);
 
     let decrypted_threatid_bytes = hex::decode(&decrypted_threatid)?;
+    let appdome_threatid = std::str::from_utf8(&decrypted_threatid_bytes)?;
 
-    let threatid_base64 = std::str::from_utf8(&decrypted_threatid_bytes)?;
-    // let threatid_base64 = BASE64_STANDARD.encode(&threatid_str);
-    // println!("DEBUG, threatid_base64, {}", &threatid_base64);
-    let appdome_threatid = String::from_utf8(
-        BASE64_STANDARD
-            .decode(&threatid_base64)
-            .unwrap_or(b"error".to_vec()),
-    )
-    .unwrap_or("error".to_string());
-    println!("DEBUG, appdome_threatid, {}", appdome_threatid);
+    println!("DEBUG, appdome_threatid, {:#?}", appdome_threatid);
     println!("DEBUG, metadata, {}", &metadata);
 
     let decrypted_signed_message = decrypt(&signed_message).unwrap_or("".to_string());
